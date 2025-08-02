@@ -6,67 +6,6 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-// 量子ゲートの定義
-const quantumGates = {
-  I: {
-    name: "Identity",
-    matrix: [
-      [1, 0],
-      [0, 1],
-    ],
-    color: "#6b7280",
-  },
-  X: {
-    name: "Pauli-X",
-    matrix: [
-      [0, 1],
-      [1, 0],
-    ],
-    color: "#ef4444",
-  },
-  Y: {
-    name: "Pauli-Y",
-    matrix: [
-      [0, -1],
-      [1, 0],
-    ],
-    color: "#f59e0b",
-  },
-  Z: {
-    name: "Pauli-Z",
-    matrix: [
-      [1, 0],
-      [0, -1],
-    ],
-    color: "#3b82f6",
-  },
-  H: {
-    name: "Hadamard",
-    matrix: [
-      [1 / Math.sqrt(2), 1 / Math.sqrt(2)],
-      [1 / Math.sqrt(2), -1 / Math.sqrt(2)],
-    ],
-    color: "#10b981",
-  },
-  S: {
-    name: "S Gate",
-    matrix: [
-      [1, 0],
-      [0, 1],
-    ],
-    color: "#8b5cf6",
-  },
-  T: {
-    name: "T Gate",
-    matrix: [
-      [1, 0],
-      [0, Math.cos(Math.PI / 4) + Math.sin(Math.PI / 4)],
-    ],
-    color: "#f97316",
-  },
-}
-
-// 複素数クラス
 class Complex {
   constructor(
     public real: number,
@@ -88,63 +27,106 @@ class Complex {
   magnitude(): number {
     return Math.sqrt(this.real * this.real + this.imag * this.imag)
   }
+
+  toString(): string {
+    return `${this.real.toFixed(3)} + ${this.imag.toFixed(3)}i`
+  }
 }
 
-// 量子状態クラス
 class QuantumState {
   constructor(
     public alpha: Complex,
     public beta: Complex,
   ) {}
 
-  // Bloch球座標に変換
-  toBlochCoordinates(): [number, number, number] {
+  toCoordinates(): [number, number, number] {
     const alphaConj = this.alpha.conjugate()
     const betaConj = this.beta.conjugate()
 
-    // Pauli行列の期待値を計算（座標系を調整）
     const x = 2 * alphaConj.multiply(this.beta).real
-    const y = this.alpha.magnitude() ** 2 - this.beta.magnitude() ** 2 // Y軸を|0⟩方向に
+    const y = this.alpha.magnitude() ** 2 - this.beta.magnitude() ** 2
     const z = 2 * alphaConj.multiply(this.beta).imag
 
     return [x, y, z]
   }
 
-  // 量子ゲートを適用
   applyGate(gate: string): QuantumState {
     const gateMatrix = quantumGates[gate as keyof typeof quantumGates].matrix
 
-    // 特別なゲートの処理
-    if (gate === "Y") {
-      return new QuantumState(
-        new Complex(-this.beta.imag, this.beta.real),
-        new Complex(this.alpha.imag, -this.alpha.real),
-      )
-    } else if (gate === "S") {
-      return new QuantumState(this.alpha, new Complex(-this.beta.imag, this.beta.real))
-    } else if (gate === "T") {
-      const phase = Math.PI / 4
-      return new QuantumState(
-        this.alpha,
-        new Complex(
-          this.beta.real * Math.cos(phase) - this.beta.imag * Math.sin(phase),
-          this.beta.real * Math.sin(phase) + this.beta.imag * Math.cos(phase),
-        ),
-      )
-    }
+    const alpha = gateMatrix[0][0].multiply(this.alpha).add(gateMatrix[0][1].multiply(this.beta))
+    const beta = gateMatrix[1][0].multiply(this.alpha).add(gateMatrix[1][1].multiply(this.beta))
 
-    // 一般的な行列演算
-    const newAlpha = new Complex(
-      gateMatrix[0][0] * this.alpha.real + gateMatrix[0][1] * this.beta.real,
-      gateMatrix[0][0] * this.alpha.imag + gateMatrix[0][1] * this.beta.imag,
-    )
-    const newBeta = new Complex(
-      gateMatrix[1][0] * this.alpha.real + gateMatrix[1][1] * this.beta.real,
-      gateMatrix[1][0] * this.alpha.imag + gateMatrix[1][1] * this.beta.imag,
-    )
-
-    return new QuantumState(newAlpha, newBeta)
+    return new QuantumState(alpha, beta)
   }
+}
+
+
+const quantumGates = {
+  I: {
+    name: "Identity",
+    matrix: [
+      [new Complex(1, 0), new Complex(0, 0)],
+      [new Complex(0, 0), new Complex(1, 0)],
+    ],
+    color: "#6b7280",
+  },
+  X: {
+    name: "Pauli-X",
+    matrix: [
+      [new Complex(0, 0), new Complex(1, 0)],
+      [new Complex(1, 0), new Complex(0, 0)],
+    ],
+    color: "#ef4444",
+  },
+  Y: {
+    name: "Pauli-Y",
+    matrix: [
+      [new Complex(0, 0), new Complex(0, -1)],
+      [new Complex(0, 1), new Complex(0, 0)],
+    ],
+    color: "#f59e0b",
+  },
+  Z: {
+    name: "Pauli-Z",
+    matrix: [
+      [new Complex(1, 0), new Complex(0, 0)],
+      [new Complex(0, 0), new Complex(-1, 0)],
+    ],
+    color: "#3b82f6",
+  },
+  H: {
+    name: "Hadamard",
+    matrix: [
+      [
+        new Complex(1 / Math.sqrt(2), 0),
+        new Complex(1 / Math.sqrt(2), 0),
+      ],
+      [
+        new Complex(1 / Math.sqrt(2), 0),
+        new Complex(-1 / Math.sqrt(2), 0),
+      ],
+    ],
+    color: "#10b981",
+  },
+  S: {
+    name: "S Gate",
+    matrix: [
+      [new Complex(1, 0), new Complex(0, 0)],
+      [new Complex(0, 0), new Complex(0, 1)],
+    ],
+    color: "#8b5cf6",
+  },
+  T: {
+    name: "T Gate",
+    matrix: [
+      [new Complex(1, 0), new Complex(0, 0)],
+      [
+        new Complex(0, 0),
+        new Complex(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4)),
+      ],
+    ],
+    color: "#f97316",
+  },
 }
 
 export default function BlochSphere() {
@@ -200,6 +182,7 @@ export default function BlochSphere() {
         const angle = (i / segments) * Math.PI * 2
         points.push(new THREE.Vector3(Math.cos(angle) * radius, y, Math.sin(angle) * radius))
       }
+
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
       return new THREE.Line(geometry, gridMaterial)
     }
@@ -215,6 +198,7 @@ export default function BlochSphere() {
         const z = Math.sin(phi) * Math.sin(angle) * 2 // 2倍に
         points.push(new THREE.Vector3(x, y, z))
       }
+
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
       return new THREE.Line(geometry, gridMaterial)
     }
@@ -246,17 +230,17 @@ export default function BlochSphere() {
       opacity: 0.6,
       linewidth: 2,
     })
+
     const equatorPoints = []
     const segments = 64
     for (let i = 0; i <= segments; i++) {
       const angle = (i / segments) * Math.PI * 2
       equatorPoints.push(new THREE.Vector3(Math.cos(angle) * 2, 0, Math.sin(angle) * 2)) // 2倍に
     }
+
     const equatorGeometry = new THREE.BufferGeometry().setFromPoints(equatorPoints)
     const equatorLine = new THREE.Line(equatorGeometry, equatorMaterial)
     scene.add(equatorLine)
-
-    // 座標軸の作成
 
     // 座標軸の作成（線のみ、矢印なし）
     const axisLength = 2.0 // 1.0から2.0に変更
@@ -292,7 +276,7 @@ export default function BlochSphere() {
     scene.add(zAxisLine)
 
     // 状態ベクトルの作成
-    const [x, y, z] = quantumState.toBlochCoordinates()
+    const [x, y, z] = quantumState.toCoordinates()
     const stateVector = new THREE.ArrowHelper(
       new THREE.Vector3(x, y, z).normalize(),
       new THREE.Vector3(0, 0, 0),
@@ -305,8 +289,6 @@ export default function BlochSphere() {
     stateVector.line.material.linewidth = 8 // 5から8に変更
     vectorRef.current = stateVector
     scene.add(stateVector)
-
-    // ラベルの作成
 
     // |0⟩と|1⟩のラベル
     const createTextGeometry = (text: string, position: THREE.Vector3, color: number) => {
@@ -390,7 +372,7 @@ export default function BlochSphere() {
   // 状態ベクトルの更新
   useEffect(() => {
     if (vectorRef.current && sceneRef.current) {
-      const [x, y, z] = quantumState.toBlochCoordinates()
+      const [x, y, z] = quantumState.toCoordinates()
       sceneRef.current.remove(vectorRef.current)
 
       const newVector = new THREE.ArrowHelper(
@@ -419,7 +401,7 @@ export default function BlochSphere() {
     setAppliedGates([])
   }
 
-  const [x, y, z] = quantumState.toBlochCoordinates()
+  const [x, y, z] = quantumState.toCoordinates()
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 p-6 max-w-6xl mx-auto">
@@ -481,8 +463,8 @@ export default function BlochSphere() {
                 <strong>Quantum State</strong>
               </div>
               <div className="font-mono text-sm bg-muted p-2 rounded">
-                α = {quantumState.alpha.real.toFixed(3)} + {quantumState.alpha.imag.toFixed(3)}i<br />β ={" "}
-                {quantumState.beta.real.toFixed(3)} + {quantumState.beta.imag.toFixed(3)}i
+                α = {quantumState.alpha.toString()}<br />
+                β = {quantumState.beta.toString()}
               </div>
             </div>
 
