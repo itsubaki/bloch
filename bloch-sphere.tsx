@@ -383,6 +383,7 @@ export default function BlochSphere() {
         0.2, // 0.6から0.2に変更（矢印の頭部を小さく）
         0.1, // 0.3から0.1に変更（矢印の頭部を小さく）
       )
+
       // 線をさらに太くする
       newVector.line.material.linewidth = 8 // 5から8に変更
       vectorRef.current = newVector
