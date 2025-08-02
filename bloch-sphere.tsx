@@ -430,7 +430,6 @@ export default function BlochSphere() {
           </CardHeader>
           <CardContent>
             <div ref={mountRef} className="flex justify-center" />
-            <p className="text-sm text-muted-foreground mt-4 text-center">マウスドラッグで回転できます</p>
           </CardContent>
         </Card>
       </div>
@@ -438,7 +437,7 @@ export default function BlochSphere() {
       <div className="w-full lg:w-80 space-y-4">
         <Card>
           <CardHeader>
-            <CardTitle>量子ゲート</CardTitle>
+            <CardTitle>Quantum Gate</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {Object.entries(quantumGates).map(([key, gate]) => (
@@ -456,19 +455,19 @@ export default function BlochSphere() {
               </Button>
             ))}
             <Button onClick={reset} variant="destructive" className="w-full">
-              リセット (|0⟩に戻す)
+              Reset
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>現在の状態</CardTitle>
+            <CardTitle>Current State</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-2">
               <div className="text-sm">
-                <strong>Bloch座標:</strong>
+                <strong>Coordinate</strong>
               </div>
               <div className="font-mono text-sm bg-muted p-2 rounded">
                 x = {x.toFixed(3)}
@@ -479,7 +478,7 @@ export default function BlochSphere() {
 
             <div className="space-y-2">
               <div className="text-sm">
-                <strong>量子状態:</strong>
+                <strong>Quantum State</strong>
               </div>
               <div className="font-mono text-sm bg-muted p-2 rounded">
                 α = {quantumState.alpha.real.toFixed(3)} + {quantumState.alpha.imag.toFixed(3)}i<br />β ={" "}
@@ -490,7 +489,7 @@ export default function BlochSphere() {
             {appliedGates.length > 0 && (
               <div className="space-y-2">
                 <div className="text-sm">
-                  <strong>適用したゲート:</strong>
+                  <strong>Applied:</strong>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {appliedGates.map((gate, index) => (
@@ -501,27 +500,6 @@ export default function BlochSphere() {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>説明</CardTitle>
-          </CardHeader>
-          <CardContent className="text-sm space-y-2">
-            <p>
-              • <strong>|0⟩</strong>: 真上 (y = +1)
-            </p>
-            <p>
-              • <strong>|1⟩</strong>: 真下 (y = -1)
-            </p>
-            <p>
-              • <strong>|+⟩</strong>: z軸正方向
-            </p>
-            <p>
-              • <strong>|-⟩</strong>: z軸負方向
-            </p>
-            <p>• オレンジの矢印が現在の量子状態を表します</p>
           </CardContent>
         </Card>
       </div>
