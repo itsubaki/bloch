@@ -108,7 +108,7 @@ const quantumGates = {
     color: "#10b981",
   },
   S: {
-    name: "S Gate",
+    name: "S",
     matrix: [
       [new Complex(1, 0), new Complex(0, 0)],
       [new Complex(0, 0), new Complex(0, 1)],
@@ -116,7 +116,7 @@ const quantumGates = {
     color: "#8b5cf6",
   },
   T: {
-    name: "T Gate",
+    name: "T(π/8)",
     matrix: [
       [new Complex(1, 0), new Complex(0, 0)],
       [
