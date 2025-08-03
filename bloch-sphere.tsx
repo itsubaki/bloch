@@ -140,18 +140,15 @@ export default function BlochSphere() {
   useEffect(() => {
     if (!mountRef.current) return
 
-    // シーンの設定
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(0xf8fafc)
     sceneRef.current = scene
 
-    // カメラの設定を変更して、|0⟩が真上を向くようにする
     const camera = new THREE.PerspectiveCamera(75, 800 / 800, 0.1, 1000)
     camera.position.set(3, 3, 3)
     camera.lookAt(0, 0, 0)
     cameraRef.current = camera
 
-    // レンダラーの設定
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(800, 800)
     renderer.shadowMap.enabled = true
@@ -159,7 +156,6 @@ export default function BlochSphere() {
     rendererRef.current = renderer
     mountRef.current.appendChild(renderer.domElement)
 
-    // ライトの設定
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
     scene.add(ambientLight)
 
@@ -168,14 +164,12 @@ export default function BlochSphere() {
     directionalLight.castShadow = true
     scene.add(directionalLight)
 
-    // グリッド線の作成
     const grid = new THREE.LineBasicMaterial({
       color: 0x888888,
       transparent: true,
       opacity: 0.4,
     })
 
-    // 緯度線（水平の円）を作成
     const createLatitudeLine = (radius: number, y: number) => {
       const points = []
       const segments = 64
@@ -188,7 +182,6 @@ export default function BlochSphere() {
       return new THREE.Line(geometry, grid)
     }
 
-    // 経度線（垂直の半円）を作成
     const createLongitudeLine = (angle: number) => {
       const points = []
       const segments = 32
@@ -204,27 +197,21 @@ export default function BlochSphere() {
       return new THREE.Line(geometry, grid)
     }
 
-    // 緯度線を追加（赤道を含む5本）
-    // 緯度線を追加（赤道を含む9本に増加）
     for (let i = -4; i <= 4; i++) {
       const y = i * 0.4 // -1.6, -1.2, -0.8, -0.4, 0, 0.4, 0.8, 1.2, 1.6 (0.2から0.4に変更)
       const radius = Math.sqrt(4 - y * y) // 球面上の半径 (1 - y*y から 4 - y*y に変更)
       if (radius > 0.1) {
-        // 極付近は除外 (0.05から0.1に変更)
         const latLine = createLatitudeLine(radius, y)
         scene.add(latLine)
       }
     }
 
-    // 経度線を追加（8本）
-    // 経度線を追加（16本に増加）
     for (let i = 0; i < 16; i++) {
       const angle = (i / 16) * Math.PI * 2
       const longLine = createLongitudeLine(angle)
       scene.add(longLine)
     }
 
-    // 赤道線を強調（太い線）
     const equatorMaterial = new THREE.LineBasicMaterial({
       color: 0x666666,
       transparent: true,
@@ -243,13 +230,11 @@ export default function BlochSphere() {
     const equatorLine = new THREE.Line(equatorGeometry, equatorMaterial)
     scene.add(equatorLine)
 
-    // 座標軸の作成（線のみ、矢印なし）
-    const axisLength = 2.0 // 1.0から2.0に変更
+    const axisLength = 2.0
     const axisMaterial = new THREE.LineBasicMaterial({
       linewidth: 3,
     })
 
-    // X軸 (赤) - 線のみ
     const xAxisGeometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(-axisLength, 0, 0),
       new THREE.Vector3(axisLength, 0, 0),
@@ -258,7 +243,6 @@ export default function BlochSphere() {
     const xAxisLine = new THREE.Line(xAxisGeometry, xAxisMaterial)
     scene.add(xAxisLine)
 
-    // Y軸 (青) - |0⟩方向 - 線のみ
     const yAxisGeometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, -axisLength, 0),
       new THREE.Vector3(0, axisLength, 0),
@@ -267,7 +251,6 @@ export default function BlochSphere() {
     const yAxisLine = new THREE.Line(yAxisGeometry, yAxisMaterial)
     scene.add(yAxisLine)
 
-    // Z軸 (緑) - |+⟩方向 - 線のみ
     const zAxisGeometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, -axisLength),
       new THREE.Vector3(0, 0, axisLength),
@@ -276,22 +259,20 @@ export default function BlochSphere() {
     const zAxisLine = new THREE.Line(zAxisGeometry, zAxisMaterial)
     scene.add(zAxisLine)
 
-    // 状態ベクトルの作成
     const [x, y, z] = quantumState.toCoordinates()
     const stateVector = new THREE.ArrowHelper(
       new THREE.Vector3(x, y, z).normalize(),
       new THREE.Vector3(0, 0, 0),
       2,
       0xff6b35,
-      0.2, // 0.6から0.2に変更（矢印の頭部を小さく）
-      0.1, // 0.3から0.1に変更（矢印の頭部を小さく）
+      0.2,
+      0.1,
     )
-    // 線をさらに太くする
-    stateVector.line.material.linewidth = 8 // 5から8に変更
+
+    stateVector.line.material.linewidth = 8
     vectorRef.current = stateVector
     scene.add(stateVector)
 
-    // |0⟩と|1⟩のラベル
     const createTextGeometry = (text: string, position: THREE.Vector3, color: number) => {
       const canvas = document.createElement("canvas")
       const context = canvas.getContext("2d")!
@@ -310,13 +291,11 @@ export default function BlochSphere() {
       scene.add(sprite)
     }
 
-    // ラベルの位置を調整して|0⟩を真上に配置
-    createTextGeometry("|0⟩", new THREE.Vector3(0, 2.6, 0), 0x000000) // 1.3から2.6に
-    createTextGeometry("|1⟩", new THREE.Vector3(0, -2.6, 0), 0x000000) // -1.3から-2.6に
-    createTextGeometry("|+⟩", new THREE.Vector3(0, 0, 2.6), 0x000000) // 1.3から2.6に
-    createTextGeometry("|-⟩", new THREE.Vector3(0, 0, -2.6), 0x000000) // -1.3から-2.6に
+    createTextGeometry("|0⟩", new THREE.Vector3(0, 2.6, 0), 0x000000)
+    createTextGeometry("|1⟩", new THREE.Vector3(0, -2.6, 0), 0x000000)
+    createTextGeometry("|+⟩", new THREE.Vector3(0, 0, 2.6), 0x000000)
+    createTextGeometry("|-⟩", new THREE.Vector3(0, 0, -2.6), 0x000000)
 
-    // コントロールの設定
     let mouseDown = false
     let mouseX = 0
     let mouseY = 0
@@ -352,7 +331,6 @@ export default function BlochSphere() {
     renderer.domElement.addEventListener("mouseup", onMouseUp)
     renderer.domElement.addEventListener("mousemove", onMouseMove)
 
-    // アニメーションループ
     const animate = () => {
       requestAnimationFrame(animate)
       renderer.render(scene, camera)
@@ -370,7 +348,6 @@ export default function BlochSphere() {
     }
   }, [])
 
-  // 状態ベクトルの更新
   useEffect(() => {
     if (vectorRef.current && sceneRef.current) {
       const [x, y, z] = quantumState.toCoordinates()
@@ -381,12 +358,11 @@ export default function BlochSphere() {
         new THREE.Vector3(0, 0, 0),
         Math.sqrt(x * x + y * y + z * z) * 2,
         0xff6b35,
-        0.2, // 0.6から0.2に変更（矢印の頭部を小さく）
-        0.1, // 0.3から0.1に変更（矢印の頭部を小さく）
+        0.2,
+        0.1,
       )
 
-      // 線をさらに太くする
-      newVector.line.material.linewidth = 8 // 5から8に変更
+      newVector.line.material.linewidth = 8
       vectorRef.current = newVector
       sceneRef.current.add(newVector)
     }
