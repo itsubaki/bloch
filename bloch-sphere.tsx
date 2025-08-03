@@ -133,6 +133,7 @@ export default function BlochSphere() {
   const sceneRef = useRef<THREE.Scene>()
   const rendererRef = useRef<THREE.WebGLRenderer>()
   const vectorRef = useRef<THREE.ArrowHelper>()
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [appliedGates, setAppliedGates] = useState<string[]>([])
 
@@ -148,6 +149,7 @@ export default function BlochSphere() {
     const camera = new THREE.PerspectiveCamera(75, 800 / 800, 0.1, 1000)
     camera.position.set(3, 3, 3)
     camera.lookAt(0, 0, 0)
+    cameraRef.current = camera
 
     // レンダラーの設定
     const renderer = new THREE.WebGLRenderer({ antialias: true })
@@ -399,6 +401,11 @@ export default function BlochSphere() {
   const reset = () => {
     setQuantumState(new QuantumState(new Complex(1), new Complex(0)))
     setAppliedGates([])
+
+    if (cameraRef.current) {
+      cameraRef.current.position.set(3, 3, 3)
+      cameraRef.current.lookAt(0, 0, 0)
+    }
   }
 
   const [x, y, z] = quantumState.toCoordinates()
