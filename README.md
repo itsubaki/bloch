@@ -1,3 +1,3 @@
 # Bloch
 
- - Bloch sphere with v0
+ - Bloch sphere with [v0](https://v0.dev/)
