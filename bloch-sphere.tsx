@@ -50,11 +50,10 @@ class QuantumState {
     return [x, y, z]
   }
 
-  applyGate(gate: string): QuantumState {
-    const gateMatrix = quantumGates[gate as keyof typeof quantumGates].matrix
-
-    const alpha = gateMatrix[0][0].multiply(this.alpha).add(gateMatrix[0][1].multiply(this.beta))
-    const beta = gateMatrix[1][0].multiply(this.alpha).add(gateMatrix[1][1].multiply(this.beta))
+  apply(gate: string): QuantumState {
+    const g = quantumGates[gate as keyof typeof quantumGates].matrix
+    const alpha = g[0][0].multiply(this.alpha).add(g[0][1].multiply(this.beta))
+    const beta = g[1][0].multiply(this.alpha).add(g[1][1].multiply(this.beta))
 
     return new QuantumState(alpha, beta)
   }
@@ -168,7 +167,7 @@ export default function BlochSphere() {
     scene.add(directionalLight)
 
     // グリッド線の作成
-    const gridMaterial = new THREE.LineBasicMaterial({
+    const grid = new THREE.LineBasicMaterial({
       color: 0x888888,
       transparent: true,
       opacity: 0.4,
@@ -184,7 +183,7 @@ export default function BlochSphere() {
       }
 
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
-      return new THREE.Line(geometry, gridMaterial)
+      return new THREE.Line(geometry, grid)
     }
 
     // 経度線（垂直の半円）を作成
@@ -200,7 +199,7 @@ export default function BlochSphere() {
       }
 
       const geometry = new THREE.BufferGeometry().setFromPoints(points)
-      return new THREE.Line(geometry, gridMaterial)
+      return new THREE.Line(geometry, grid)
     }
 
     // 緯度線を追加（赤道を含む5本）
@@ -391,10 +390,10 @@ export default function BlochSphere() {
     }
   }, [quantumState])
 
-  const applyGate = (gate: string) => {
-    const newState = quantumState.applyGate(gate)
+  const apply = (g: string) => {
+    const newState = quantumState.apply(g)
     setQuantumState(newState)
-    setAppliedGates((prev) => [...prev, gate])
+    setAppliedGates((prev) => [...prev, g])
   }
 
   const reset = () => {
@@ -426,7 +425,7 @@ export default function BlochSphere() {
             {Object.entries(quantumGates).map(([key, gate]) => (
               <Button
                 key={key}
-                onClick={() => applyGate(key)}
+                onClick={() => apply(key)}
                 className="w-full justify-start"
                 variant="outline"
                 style={{ borderColor: gate.color }}
