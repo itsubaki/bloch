@@ -59,7 +59,6 @@ class QuantumState {
   }
 }
 
-
 const quantumGates = {
   I: {
     name: "Identity",
