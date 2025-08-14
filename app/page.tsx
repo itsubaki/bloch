@@ -1,7 +1,7 @@
 "use client"
 
-import Bloch from "../bloch"
+import BlochSphere from "../bloch-sphere"
 
 export default function Page() {
-  return <Bloch />
+  return <BlochSphere />
 }

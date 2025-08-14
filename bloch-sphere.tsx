@@ -117,7 +117,7 @@ const quantumGates = {
   },
 }
 
-export default function Bloch() {
+export default function BlochSphere() {
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene>()
   const rendererRef = useRef<THREE.WebGLRenderer>()
@@ -552,7 +552,7 @@ export default function Bloch() {
           <div className="p-3 space-y-3">
             <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
-                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum gate</CardTitle>
+                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum Gate</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {Object.entries(quantumGates).map(([key, gate]) => (
@@ -579,7 +579,7 @@ export default function Bloch() {
 
             <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
-                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum state</CardTitle>
+                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum State</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
@@ -682,11 +682,13 @@ export default function Bloch() {
 
                 {/* Current State - Compact */}
                 <div className="space-y-2">
-                  <h4 className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>State</h4>
+                  <h4 className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>Quantum State</h4>
                   <div
                     className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-muted"}`}
                   >
-                    x={x.toFixed(2)} y={y.toFixed(2)} z={z.toFixed(2)}
+                    a={quantumState.alpha.real.toFixed(4)}+{quantumState.alpha.imag.toFixed(4)}i
+                    <br />
+                    b={quantumState.beta.real.toFixed(4)}+{quantumState.beta.imag.toFixed(4)}i
                   </div>
                 </div>
               </div>
