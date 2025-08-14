@@ -34,27 +34,27 @@ class Complex {
 
 class QuantumState {
   constructor(
-    public alpha: Complex,
-    public beta: Complex,
+    public a: Complex,
+    public b: Complex,
   ) {}
 
   toCoordinates(): [number, number, number] {
-    const alphaConj = this.alpha.conjugate()
-    const betaConj = this.beta.conjugate()
+    const aconj = this.a.conjugate()
+    const bconj = this.b.conjugate()
 
-    const x = 2 * alphaConj.multiply(this.beta).real
-    const y = this.alpha.magnitude() ** 2 - this.beta.magnitude() ** 2
-    const z = 2 * alphaConj.multiply(this.beta).imag
+    const x = 2 * aconj.multiply(this.b).real
+    const y = 2 * aconj.multiply(this.b).imag
+    const z = this.a.magnitude() ** 2 - this.b.magnitude() ** 2
 
     return [x, y, z]
   }
 
   apply(gate: string): QuantumState {
     const g = quantumGates[gate as keyof typeof quantumGates].matrix
-    const alpha = g[0][0].multiply(this.alpha).add(g[0][1].multiply(this.beta))
-    const beta = g[1][0].multiply(this.alpha).add(g[1][1].multiply(this.beta))
+    const a = g[0][0].multiply(this.a).add(g[0][1].multiply(this.b))
+    const b = g[1][0].multiply(this.a).add(g[1][1].multiply(this.b))
 
-    return new QuantumState(alpha, beta)
+    return new QuantumState(a, b)
   }
 }
 
@@ -117,7 +117,7 @@ const quantumGates = {
   },
 }
 
-export default function BlochSphere() {
+export default function Bloch() {
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene>()
   const rendererRef = useRef<THREE.WebGLRenderer>()
@@ -181,9 +181,9 @@ export default function BlochSphere() {
       const segments = 32
       for (let i = 0; i <= segments; i++) {
         const phi = (i / segments) * Math.PI
-        const x = Math.sin(phi) * Math.cos(angle) * 2 // 2倍に
-        const y = Math.cos(phi) * 2 // 2倍に
-        const z = Math.sin(phi) * Math.sin(angle) * 2 // 2倍に
+        const x = Math.sin(phi) * Math.cos(angle) * 2
+        const y = Math.cos(phi) * 2
+        const z = Math.sin(phi) * Math.sin(angle) * 2
         points.push(new THREE.Vector3(x, y, z))
       }
 
@@ -192,8 +192,8 @@ export default function BlochSphere() {
     }
 
     for (let i = -4; i <= 4; i++) {
-      const y = i * 0.4 // -1.6, -1.2, -0.8, -0.4, 0, 0.4, 0.8, 1.2, 1.6 (0.2から0.4に変更)
-      const radius = Math.sqrt(4 - y * y) // 球面上の半径 (1 - y*y から 4 - y*y に変更)
+      const y = i * 0.4
+      const radius = Math.sqrt(4 - y * y)
       if (radius > 0.1) {
         const latLine = createLatitudeLine(radius, y)
         scene.add(latLine)
@@ -255,7 +255,7 @@ export default function BlochSphere() {
 
     const [x, y, z] = quantumState.toCoordinates()
     const stateVector = new THREE.ArrowHelper(
-      new THREE.Vector3(x, y, z).normalize(),
+      new THREE.Vector3(x, z, y).normalize(),
       new THREE.Vector3(0, 0, 0),
       2,
       0xff6b35,
@@ -457,7 +457,7 @@ export default function BlochSphere() {
       sceneRef.current.remove(vectorRef.current)
 
       const newVector = new THREE.ArrowHelper(
-        new THREE.Vector3(x, y, z).normalize(),
+        new THREE.Vector3(x, z, y).normalize(),
         new THREE.Vector3(0, 0, 0),
         Math.sqrt(x * x + y * y + z * z) * 2,
         0xff6b35,
@@ -490,8 +490,6 @@ export default function BlochSphere() {
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode)
   }
-
-  const [x, y, z] = quantumState.toCoordinates()
 
   return (
     <div className="relative w-screen h-screen overflow-hidden">
@@ -586,9 +584,9 @@ export default function BlochSphere() {
                   <div
                     className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-muted"}`}
                   >
-                    a = {quantumState.alpha.toString()}
+                    a = {quantumState.a.toString()}
                     <br />
-                    b = {quantumState.beta.toString()}
+                    b = {quantumState.b.toString()}
                   </div>
                 </div>
               </CardContent>
