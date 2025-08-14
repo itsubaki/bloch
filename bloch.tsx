@@ -4,7 +4,6 @@ import { useRef, useEffect, useState } from "react"
 import * as THREE from "three"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 
 class Complex {
   constructor(
@@ -118,7 +117,7 @@ const quantumGates = {
   },
 }
 
-export default function BlochSphere() {
+export default function Bloch() {
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene>()
   const rendererRef = useRef<THREE.WebGLRenderer>()
@@ -553,7 +552,7 @@ export default function BlochSphere() {
           <div className="p-3 space-y-3">
             <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
-                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum Gate</CardTitle>
+                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum gate</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {Object.entries(quantumGates).map(([key, gate]) => (
@@ -580,52 +579,18 @@ export default function BlochSphere() {
 
             <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
-                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Current State</CardTitle>
+                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum state</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  <div className={`text-sm ${isDarkMode ? "text-white" : ""}`}>
-                    <strong>Coordinate</strong>
-                  </div>
                   <div
                     className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-muted"}`}
                   >
-                    x = {x.toFixed(3)}
-                    <br />y = {y.toFixed(3)}
-                    <br />z = {z.toFixed(3)}
+                    a = {quantumState.alpha.toString()}
+                    <br />
+                    b = {quantumState.beta.toString()}
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <div className={`text-sm ${isDarkMode ? "text-white" : ""}`}>
-                    <strong>Quantum State</strong>
-                  </div>
-                  <div
-                    className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-muted"}`}
-                  >
-                    α = {quantumState.alpha.toString()}
-                    <br />β = {quantumState.beta.toString()}
-                  </div>
-                </div>
-
-                {appliedGates.length > 0 && (
-                  <div className="space-y-2">
-                    <div className={`text-sm ${isDarkMode ? "text-white" : ""}`}>
-                      <strong>Applied:</strong>
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {appliedGates.map((gate, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className={`text-xs ${isDarkMode ? "bg-gray-700 text-gray-300" : ""}`}
-                        >
-                          {gate}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
@@ -634,7 +599,7 @@ export default function BlochSphere() {
 
       <div className="md:hidden">
         {/* Mobile toggle button */}
-        <div className="absolute bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+        <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
           <Button
             onClick={() => setShowMobilePanel(!showMobilePanel)}
             className={`w-12 h-12 rounded-full backdrop-blur-md border shadow-xl transition-all ${
@@ -723,27 +688,6 @@ export default function BlochSphere() {
                   >
                     x={x.toFixed(2)} y={y.toFixed(2)} z={z.toFixed(2)}
                   </div>
-                  {appliedGates.length > 0 && (
-                    <div className="flex flex-wrap gap-1">
-                      {appliedGates.slice(-3).map((gate, index) => (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className={`text-xs ${isDarkMode ? "bg-gray-600 text-gray-300" : ""}`}
-                        >
-                          {gate}
-                        </Badge>
-                      ))}
-                      {appliedGates.length > 3 && (
-                        <Badge
-                          variant="secondary"
-                          className={`text-xs ${isDarkMode ? "bg-gray-600 text-gray-300" : ""}`}
-                        >
-                          +{appliedGates.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
