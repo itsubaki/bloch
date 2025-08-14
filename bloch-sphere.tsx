@@ -95,14 +95,8 @@ const quantumGates = {
   H: {
     name: "Hadamard",
     matrix: [
-      [
-        new Complex(1 / Math.sqrt(2), 0),
-        new Complex(1 / Math.sqrt(2), 0),
-      ],
-      [
-        new Complex(1 / Math.sqrt(2), 0),
-        new Complex(-1 / Math.sqrt(2), 0),
-      ],
+      [new Complex(1 / Math.sqrt(2), 0), new Complex(1 / Math.sqrt(2), 0)],
+      [new Complex(1 / Math.sqrt(2), 0), new Complex(-1 / Math.sqrt(2), 0)],
     ],
     color: "#10b981",
   },
@@ -118,10 +112,7 @@ const quantumGates = {
     name: "T(π/8)",
     matrix: [
       [new Complex(1, 0), new Complex(0, 0)],
-      [
-        new Complex(0, 0),
-        new Complex(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4)),
-      ],
+      [new Complex(0, 0), new Complex(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4))],
     ],
     color: "#f97316",
   },
@@ -298,6 +289,8 @@ export default function BlochSphere() {
     let mouseDown = false
     let mouseX = 0
     let mouseY = 0
+    let touches: Touch[] = []
+    let lastPinchDistance = 0
 
     const onMouseDown = (event: MouseEvent) => {
       mouseDown = true
@@ -315,20 +308,109 @@ export default function BlochSphere() {
       const deltaX = event.clientX - mouseX
       const deltaY = event.clientY - mouseY
 
-      camera.position.x = camera.position.x * Math.cos(deltaX * 0.01) - camera.position.z * Math.sin(deltaX * 0.01)
-      camera.position.z = camera.position.x * Math.sin(deltaX * 0.01) + camera.position.z * Math.cos(deltaX * 0.01)
+      const sphericalCoords = new THREE.Spherical()
+      sphericalCoords.setFromVector3(camera.position)
 
-      const distance = Math.sqrt(camera.position.x ** 2 + camera.position.y ** 2 + camera.position.z ** 2)
-      camera.position.y = Math.max(-distance * 0.9, Math.min(distance * 0.9, camera.position.y - deltaY * 0.01))
+      sphericalCoords.theta -= deltaX * 0.01
+      sphericalCoords.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalCoords.phi + deltaY * 0.01))
 
+      camera.position.setFromSpherical(sphericalCoords)
       camera.lookAt(0, 0, 0)
+
       mouseX = event.clientX
       mouseY = event.clientY
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault()
+
+      const sphericalCoords = new THREE.Spherical()
+      sphericalCoords.setFromVector3(camera.position)
+
+      sphericalCoords.radius = Math.max(2, Math.min(10, sphericalCoords.radius + event.deltaY * 0.01))
+
+      camera.position.setFromSpherical(sphericalCoords)
+      camera.lookAt(0, 0, 0)
+    }
+
+    const onTouchStart = (event: TouchEvent) => {
+      event.preventDefault()
+      touches = Array.from(event.touches)
+
+      if (touches.length === 1) {
+        mouseDown = true
+        mouseX = touches[0].clientX
+        mouseY = touches[0].clientY
+      } else if (touches.length === 2) {
+        mouseDown = false
+        const dx = touches[0].clientX - touches[1].clientX
+        const dy = touches[0].clientY - touches[1].clientY
+        lastPinchDistance = Math.sqrt(dx * dx + dy * dy)
+      }
+    }
+
+    const onTouchMove = (event: TouchEvent) => {
+      event.preventDefault()
+      touches = Array.from(event.touches)
+
+      if (touches.length === 1 && mouseDown) {
+        const deltaX = touches[0].clientX - mouseX
+        const deltaY = touches[0].clientY - mouseY
+
+        const sphericalCoords = new THREE.Spherical()
+        sphericalCoords.setFromVector3(camera.position)
+
+        sphericalCoords.theta -= deltaX * 0.01
+        sphericalCoords.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalCoords.phi + deltaY * 0.01))
+
+        camera.position.setFromSpherical(sphericalCoords)
+        camera.lookAt(0, 0, 0)
+
+        mouseX = touches[0].clientX
+        mouseY = touches[0].clientY
+      } else if (touches.length === 2) {
+        const dx = touches[0].clientX - touches[1].clientX
+        const dy = touches[0].clientY - touches[1].clientY
+        const distance = Math.sqrt(dx * dx + dy * dy)
+
+        if (lastPinchDistance > 0) {
+          const scale = distance / lastPinchDistance
+
+          const sphericalCoords = new THREE.Spherical()
+          sphericalCoords.setFromVector3(camera.position)
+
+          sphericalCoords.radius = Math.max(2, Math.min(10, sphericalCoords.radius / scale))
+
+          camera.position.setFromSpherical(sphericalCoords)
+          camera.lookAt(0, 0, 0)
+        }
+
+        lastPinchDistance = distance
+      }
+    }
+
+    const onTouchEnd = (event: TouchEvent) => {
+      event.preventDefault()
+      touches = Array.from(event.touches)
+
+      if (touches.length === 0) {
+        mouseDown = false
+        lastPinchDistance = 0
+      } else if (touches.length === 1) {
+        mouseDown = true
+        mouseX = touches[0].clientX
+        mouseY = touches[0].clientY
+        lastPinchDistance = 0
+      }
     }
 
     renderer.domElement.addEventListener("mousedown", onMouseDown)
     renderer.domElement.addEventListener("mouseup", onMouseUp)
     renderer.domElement.addEventListener("mousemove", onMouseMove)
+    renderer.domElement.addEventListener("wheel", onWheel, { passive: false })
+    renderer.domElement.addEventListener("touchstart", onTouchStart, { passive: false })
+    renderer.domElement.addEventListener("touchmove", onTouchMove, { passive: false })
+    renderer.domElement.addEventListener("touchend", onTouchEnd, { passive: false })
 
     const animate = () => {
       requestAnimationFrame(animate)
@@ -340,6 +422,10 @@ export default function BlochSphere() {
       renderer.domElement.removeEventListener("mousedown", onMouseDown)
       renderer.domElement.removeEventListener("mouseup", onMouseUp)
       renderer.domElement.removeEventListener("mousemove", onMouseMove)
+      renderer.domElement.removeEventListener("wheel", onWheel)
+      renderer.domElement.removeEventListener("touchstart", onTouchStart)
+      renderer.domElement.removeEventListener("touchmove", onTouchMove)
+      renderer.domElement.removeEventListener("touchend", onTouchEnd)
       if (mountRef.current && renderer.domElement) {
         mountRef.current.removeChild(renderer.domElement)
       }
@@ -445,8 +531,8 @@ export default function BlochSphere() {
                 <strong>Quantum State</strong>
               </div>
               <div className="font-mono text-sm bg-muted p-2 rounded">
-                α = {quantumState.alpha.toString()}<br />
-                β = {quantumState.beta.toString()}
+                α = {quantumState.alpha.toString()}
+                <br />β = {quantumState.beta.toString()}
               </div>
             </div>
 
