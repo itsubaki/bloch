@@ -134,13 +134,16 @@ export default function BlochSphere() {
     scene.background = new THREE.Color(0xf8fafc)
     sceneRef.current = scene
 
-    const camera = new THREE.PerspectiveCamera(75, 800 / 800, 0.1, 1000)
+    const width = window.innerWidth
+    const height = window.innerHeight
+
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
     camera.position.set(3, 3, 3)
     camera.lookAt(0, 0, 0)
     cameraRef.current = camera
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setSize(800, 800)
+    renderer.setSize(width, height)
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     rendererRef.current = renderer
@@ -418,6 +421,19 @@ export default function BlochSphere() {
     }
     animate()
 
+    const handleResize = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+
+      if (cameraRef.current && rendererRef.current) {
+        cameraRef.current.aspect = width / height
+        cameraRef.current.updateProjectionMatrix()
+        rendererRef.current.setSize(width, height)
+      }
+    }
+
+    window.addEventListener("resize", handleResize)
+
     return () => {
       renderer.domElement.removeEventListener("mousedown", onMouseDown)
       renderer.domElement.removeEventListener("mouseup", onMouseUp)
@@ -426,6 +442,7 @@ export default function BlochSphere() {
       renderer.domElement.removeEventListener("touchstart", onTouchStart)
       renderer.domElement.removeEventListener("touchmove", onTouchMove)
       renderer.domElement.removeEventListener("touchend", onTouchEnd)
+      window.removeEventListener("resize", handleResize)
       if (mountRef.current && renderer.domElement) {
         mountRef.current.removeChild(renderer.domElement)
       }
@@ -472,86 +489,91 @@ export default function BlochSphere() {
   const [x, y, z] = quantumState.toCoordinates()
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 p-6 max-w-6xl mx-auto">
-      <div className="flex-1">
-        <Card>
-          <CardHeader>
-            <CardTitle>Bloch sphere</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div ref={mountRef} className="flex justify-center" />
-          </CardContent>
-        </Card>
-      </div>
+    <div className="relative w-screen h-screen overflow-hidden">
+      <div ref={mountRef} className="absolute inset-0" />
 
-      <div className="w-full lg:w-80 space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Quantum Gate</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {Object.entries(quantumGates).map(([key, gate]) => (
-              <Button
-                key={key}
-                onClick={() => apply(key)}
-                className="w-full justify-start"
-                variant="outline"
-                style={{ borderColor: gate.color }}
-              >
-                <span className="font-mono mr-2" style={{ color: gate.color }}>
-                  {key}
-                </span>
-                {gate.name}
-              </Button>
-            ))}
-            <Button onClick={reset} variant="destructive" className="w-full">
-              Reset
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="absolute top-4 right-4 z-50 flex items-start gap-4">
+        <a
+          href="https://github.com/itsubaki/bloch"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-10 h-10 bg-background/90 backdrop-blur-md border rounded-lg shadow-xl hover:bg-background/95 transition-colors"
+          title="View on GitHub"
+        >
+          <img src="/github-mark.svg" alt="GitHub" className="w-6 h-6" />
+        </a>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Current State</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="space-y-2">
-              <div className="text-sm">
-                <strong>Coordinate</strong>
-              </div>
-              <div className="font-mono text-sm bg-muted p-2 rounded">
-                x = {x.toFixed(3)}
-                <br />y = {y.toFixed(3)}
-                <br />z = {z.toFixed(3)}
-              </div>
-            </div>
+        <div className="w-64 bg-background/90 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto">
+          <div className="p-3 space-y-3">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Quantum Gate</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {Object.entries(quantumGates).map(([key, gate]) => (
+                  <Button
+                    key={key}
+                    onClick={() => apply(key)}
+                    className="w-full justify-start text-sm h-8"
+                    variant="outline"
+                    style={{ borderColor: gate.color }}
+                  >
+                    <span className="font-mono mr-2" style={{ color: gate.color }}>
+                      {key}
+                    </span>
+                    {gate.name}
+                  </Button>
+                ))}
+                <Button onClick={reset} variant="destructive" className="w-full text-sm h-8">
+                  Reset
+                </Button>
+              </CardContent>
+            </Card>
 
-            <div className="space-y-2">
-              <div className="text-sm">
-                <strong>Quantum State</strong>
-              </div>
-              <div className="font-mono text-sm bg-muted p-2 rounded">
-                α = {quantumState.alpha.toString()}
-                <br />β = {quantumState.beta.toString()}
-              </div>
-            </div>
-
-            {appliedGates.length > 0 && (
-              <div className="space-y-2">
-                <div className="text-sm">
-                  <strong>Applied:</strong>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Current State</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="space-y-2">
+                  <div className="text-sm">
+                    <strong>Coordinate</strong>
+                  </div>
+                  <div className="font-mono text-xs bg-muted p-2 rounded">
+                    x = {x.toFixed(3)}
+                    <br />y = {y.toFixed(3)}
+                    <br />z = {z.toFixed(3)}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-1">
-                  {appliedGates.map((gate, index) => (
-                    <Badge key={index} variant="secondary">
-                      {gate}
-                    </Badge>
-                  ))}
+
+                <div className="space-y-2">
+                  <div className="text-sm">
+                    <strong>Quantum State</strong>
+                  </div>
+                  <div className="font-mono text-xs bg-muted p-2 rounded">
+                    α = {quantumState.alpha.toString()}
+                    <br />β = {quantumState.beta.toString()}
+                  </div>
                 </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+
+                {appliedGates.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="text-sm">
+                      <strong>Applied:</strong>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {appliedGates.map((gate, index) => (
+                        <Badge key={index} variant="secondary" className="text-xs">
+                          {gate}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
