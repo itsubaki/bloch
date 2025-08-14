@@ -127,6 +127,7 @@ export default function BlochSphere() {
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [appliedGates, setAppliedGates] = useState<string[]>([])
   const [isDarkMode, setIsDarkMode] = useState(false)
+  const [showMobilePanel, setShowMobilePanel] = useState(false)
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -497,7 +498,7 @@ export default function BlochSphere() {
     <div className="relative w-screen h-screen overflow-hidden">
       <div ref={mountRef} className="absolute inset-0" />
 
-      <div className="absolute top-4 right-4 z-50 flex items-start gap-4">
+      <div className="absolute top-4 right-4 z-50 hidden md:flex items-start gap-4">
         <Button
           onClick={toggleDarkMode}
           variant="outline"
@@ -628,6 +629,125 @@ export default function BlochSphere() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </div>
+
+      <div className="md:hidden">
+        {/* Mobile toggle button */}
+        <div className="absolute bottom-4 right-4 z-50 flex flex-col items-end gap-2">
+          <Button
+            onClick={() => setShowMobilePanel(!showMobilePanel)}
+            className={`w-12 h-12 rounded-full backdrop-blur-md border shadow-xl transition-all ${
+              isDarkMode
+                ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
+                : "bg-background/90 hover:bg-background/95"
+            }`}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
+              />
+            </svg>
+          </Button>
+
+          {/* Mobile panel */}
+          {showMobilePanel && (
+            <div
+              className={`w-72 max-h-96 backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto transition-all ${
+                isDarkMode ? "bg-gray-800/95 border-gray-700" : "bg-background/95"
+              }`}
+            >
+              <div className="p-3 space-y-3">
+                {/* Mobile header with controls */}
+                <div className="flex items-center justify-between">
+                  <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : ""}`}>Controls</h3>
+                  <div className="flex gap-2">
+                    <Button
+                      onClick={toggleDarkMode}
+                      variant="outline"
+                      size="sm"
+                      className={`w-8 h-8 p-0 ${
+                        isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
+                      }`}
+                    >
+                      {isDarkMode ? "☀️" : "🌙"}
+                    </Button>
+                    <a
+                      href="https://github.com/itsubaki/bloch"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`flex items-center justify-center w-8 h-8 border rounded text-xs transition-colors ${
+                        isDarkMode
+                          ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white"
+                          : "bg-background border-border hover:bg-accent"
+                      }`}
+                    >
+                      <img src="/github-mark.svg" alt="GitHub" className={`w-4 h-4 ${isDarkMode ? "invert" : ""}`} />
+                    </a>
+                  </div>
+                </div>
+
+                {/* Quantum Gates */}
+                <div className="space-y-2">
+                  <h4 className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>Quantum Gates</h4>
+                  <div className="grid grid-cols-2 gap-1">
+                    {Object.entries(quantumGates).map(([key, gate]) => (
+                      <Button
+                        key={key}
+                        onClick={() => apply(key)}
+                        className={`text-xs h-7 ${
+                          isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
+                        }`}
+                        variant="outline"
+                        style={{ borderColor: gate.color }}
+                      >
+                        <span className="font-mono" style={{ color: gate.color }}>
+                          {key}
+                        </span>
+                      </Button>
+                    ))}
+                  </div>
+                  <Button onClick={reset} variant="destructive" className="w-full text-xs h-7">
+                    Reset
+                  </Button>
+                </div>
+
+                {/* Current State - Compact */}
+                <div className="space-y-2">
+                  <h4 className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>State</h4>
+                  <div
+                    className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-muted"}`}
+                  >
+                    x={x.toFixed(2)} y={y.toFixed(2)} z={z.toFixed(2)}
+                  </div>
+                  {appliedGates.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {appliedGates.slice(-3).map((gate, index) => (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className={`text-xs ${isDarkMode ? "bg-gray-600 text-gray-300" : ""}`}
+                        >
+                          {gate}
+                        </Badge>
+                      ))}
+                      {appliedGates.length > 3 && (
+                        <Badge
+                          variant="secondary"
+                          className={`text-xs ${isDarkMode ? "bg-gray-600 text-gray-300" : ""}`}
+                        >
+                          +{appliedGates.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
