@@ -126,12 +126,13 @@ export default function BlochSphere() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [appliedGates, setAppliedGates] = useState<string[]>([])
+  const [isDarkMode, setIsDarkMode] = useState(false)
 
   useEffect(() => {
     if (!mountRef.current) return
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(0xf8fafc)
+    scene.background = new THREE.Color(isDarkMode ? 0x0a0a0f : 0xf8fafc)
     sceneRef.current = scene
 
     const width = window.innerWidth
@@ -271,7 +272,7 @@ export default function BlochSphere() {
       const context = canvas.getContext("2d")!
       canvas.width = 64
       canvas.height = 64
-      context.fillStyle = `#${color.toString(16).padStart(6, "0")}`
+      context.fillStyle = `#${(isDarkMode ? 0xffffff : 0x000000).toString(16).padStart(6, "0")}`
       context.font = "32px Arial"
       context.textAlign = "center"
       context.fillText(text, 32, 40)
@@ -448,7 +449,7 @@ export default function BlochSphere() {
       }
       renderer.dispose()
     }
-  }, [])
+  }, [isDarkMode])
 
   useEffect(() => {
     if (vectorRef.current && sceneRef.current) {
@@ -486,6 +487,10 @@ export default function BlochSphere() {
     }
   }
 
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode)
+  }
+
   const [x, y, z] = quantumState.toCoordinates()
 
   return (
@@ -493,28 +498,70 @@ export default function BlochSphere() {
       <div ref={mountRef} className="absolute inset-0" />
 
       <div className="absolute top-4 right-4 z-50 flex items-start gap-4">
+        <Button
+          onClick={toggleDarkMode}
+          variant="outline"
+          size="icon"
+          className={`w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${
+            isDarkMode
+              ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
+              : "bg-background/90 hover:bg-background/95"
+          }`}
+          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+        >
+          {isDarkMode ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+              />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+              />
+            </svg>
+          )}
+        </Button>
+
         <a
           href="https://github.com/itsubaki/bloch"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center w-10 h-10 bg-background/90 backdrop-blur-md border rounded-lg shadow-xl hover:bg-background/95 transition-colors"
+          className={`flex items-center justify-center w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${
+            isDarkMode
+              ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95"
+              : "bg-background/90 hover:bg-background/95"
+          }`}
           title="View on GitHub"
         >
-          <img src="/github-mark.svg" alt="GitHub" className="w-6 h-6" />
+          <img src="/github-mark.svg" alt="GitHub" className={`w-6 h-6 ${isDarkMode ? "invert" : ""}`} />
         </a>
 
-        <div className="w-64 bg-background/90 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto">
+        <div
+          className={`w-64 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto ${
+            isDarkMode ? "bg-gray-800/90 border-gray-700" : "bg-background/90"
+          }`}
+        >
           <div className="p-3 space-y-3">
-            <Card>
+            <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Quantum Gate</CardTitle>
+                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Quantum Gate</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
                 {Object.entries(quantumGates).map(([key, gate]) => (
                   <Button
                     key={key}
                     onClick={() => apply(key)}
-                    className="w-full justify-start text-sm h-8"
+                    className={`w-full justify-start text-sm h-8 ${
+                      isDarkMode ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white" : ""
+                    }`}
                     variant="outline"
                     style={{ borderColor: gate.color }}
                   >
@@ -530,16 +577,18 @@ export default function BlochSphere() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-base">Current State</CardTitle>
+                <CardTitle className={`text-base ${isDarkMode ? "text-white" : ""}`}>Current State</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  <div className="text-sm">
+                  <div className={`text-sm ${isDarkMode ? "text-white" : ""}`}>
                     <strong>Coordinate</strong>
                   </div>
-                  <div className="font-mono text-xs bg-muted p-2 rounded">
+                  <div
+                    className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-muted"}`}
+                  >
                     x = {x.toFixed(3)}
                     <br />y = {y.toFixed(3)}
                     <br />z = {z.toFixed(3)}
@@ -547,10 +596,12 @@ export default function BlochSphere() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-sm">
+                  <div className={`text-sm ${isDarkMode ? "text-white" : ""}`}>
                     <strong>Quantum State</strong>
                   </div>
-                  <div className="font-mono text-xs bg-muted p-2 rounded">
+                  <div
+                    className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-muted"}`}
+                  >
                     α = {quantumState.alpha.toString()}
                     <br />β = {quantumState.beta.toString()}
                   </div>
@@ -558,12 +609,16 @@ export default function BlochSphere() {
 
                 {appliedGates.length > 0 && (
                   <div className="space-y-2">
-                    <div className="text-sm">
+                    <div className={`text-sm ${isDarkMode ? "text-white" : ""}`}>
                       <strong>Applied:</strong>
                     </div>
                     <div className="flex flex-wrap gap-1">
                       {appliedGates.map((gate, index) => (
-                        <Badge key={index} variant="secondary" className="text-xs">
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className={`text-xs ${isDarkMode ? "bg-gray-700 text-gray-300" : ""}`}
+                        >
                           {gate}
                         </Badge>
                       ))}
