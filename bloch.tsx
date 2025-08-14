@@ -684,9 +684,9 @@ export default function Bloch() {
                   <div
                     className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-muted"}`}
                   >
-                    a={quantumState.alpha.real.toFixed(4)}+{quantumState.alpha.imag.toFixed(4)}i
+                    a={quantumState.a.real.toFixed(4)}+{quantumState.a.imag.toFixed(4)}i
                     <br />
-                    b={quantumState.beta.real.toFixed(4)}+{quantumState.beta.imag.toFixed(4)}i
+                    b={quantumState.b.real.toFixed(4)}+{quantumState.b.imag.toFixed(4)}i
                   </div>
                 </div>
               </div>
