@@ -283,8 +283,8 @@ export default function BlochSphere() {
 
     createTextGeometry("|0⟩", new THREE.Vector3(0, 2.6, 0), 0x000000)
     createTextGeometry("|1⟩", new THREE.Vector3(0, -2.6, 0), 0x000000)
-    createTextGeometry("|+⟩", new THREE.Vector3(0, 0, 2.6), 0x000000)
-    createTextGeometry("|-⟩", new THREE.Vector3(0, 0, -2.6), 0x000000)
+    createTextGeometry("|+⟩", new THREE.Vector3(2.6, 0, 0), 0x000000)
+    createTextGeometry("|-⟩", new THREE.Vector3(-2.6, 0, 0), 0x000000)
 
     let mouseDown = false
     let mouseX = 0
