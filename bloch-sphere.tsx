@@ -125,7 +125,7 @@ export default function BlochSphere() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [appliedGates, setAppliedGates] = useState<string[]>([])
-  const [isDarkMode, setIsDarkMode] = useState(false)
+  const [isDarkMode, setIsDarkMode] = useState(true)
   const [showMobilePanel, setShowMobilePanel] = useState(false)
 
   useEffect(() => {
