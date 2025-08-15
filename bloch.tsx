@@ -28,7 +28,10 @@ class Complex {
   }
 
   toString(): string {
-    return `${this.real.toFixed(3)} + ${this.imag.toFixed(3)}i`
+    const realStr = (Object.is(this.real, -0) ? 0 : this.real).toFixed(4);
+    const imagStr = (Object.is(this.imag, -0) ? 0 : this.imag).toFixed(4);
+    const sign = this.imag >= 0 ? '+' : '-';
+    return `${realStr} ${sign} ${Math.abs(this.imag).toFixed(4)}i`;
   }
 }
 
@@ -46,7 +49,7 @@ class QuantumState {
     const y = 2 * aconj.multiply(this.b).imag
     const z = this.a.magnitude() ** 2 - this.b.magnitude() ** 2
 
-    return [x, z, -y]
+    return [y, z, x]
   }
 
   apply(gate: string): QuantumState {
@@ -287,10 +290,10 @@ export default function Bloch() {
 
     createTextGeometry("|0⟩", new THREE.Vector3(0, 2.6, 0), 0x000000)
     createTextGeometry("|1⟩", new THREE.Vector3(0, -2.6, 0), 0x000000)
-    createTextGeometry("|+⟩", new THREE.Vector3(2.6, 0, 0), 0x000000)
-    createTextGeometry("|-⟩", new THREE.Vector3(-2.6, 0, 0), 0x000000)
-    createTextGeometry("|+i⟩", new THREE.Vector3(0, 0, -2.6), 0x000000)
-    createTextGeometry("|-i⟩", new THREE.Vector3(0, 0, 2.6), 0x000000)
+    createTextGeometry("|+⟩", new THREE.Vector3(0, 0, 2.6), 0x000000)
+    createTextGeometry("|-⟩", new THREE.Vector3(0, 0, -2.6), 0x000000)
+    createTextGeometry("|i⟩", new THREE.Vector3(2.6, 0, 0), 0x000000)
+    createTextGeometry("|-i⟩", new THREE.Vector3(-2.6, 0, 0), 0x000000)
 
     let mouseDown = false
     let mouseX = 0
