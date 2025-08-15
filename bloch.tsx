@@ -62,14 +62,6 @@ class QuantumState {
 }
 
 const quantumGates = {
-  I: {
-    name: "Identity",
-    matrix: [
-      [new Complex(1, 0), new Complex(0, 0)],
-      [new Complex(0, 0), new Complex(1, 0)],
-    ],
-    color: "#6b7280",
-  },
   X: {
     name: "Pauli-X",
     matrix: [
