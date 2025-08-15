@@ -46,7 +46,7 @@ class QuantumState {
     const y = 2 * aconj.multiply(this.b).imag
     const z = this.a.magnitude() ** 2 - this.b.magnitude() ** 2
 
-    return [x, y, z]
+    return [x, z, -y]
   }
 
   apply(gate: string): QuantumState {
@@ -255,7 +255,7 @@ export default function Bloch() {
 
     const [x, y, z] = quantumState.toCoordinates()
     const stateVector = new THREE.ArrowHelper(
-      new THREE.Vector3(x, z, y).normalize(),
+      new THREE.Vector3(x, y, z).normalize(),
       new THREE.Vector3(0, 0, 0),
       2,
       0xff6b35,
@@ -289,6 +289,8 @@ export default function Bloch() {
     createTextGeometry("|1⟩", new THREE.Vector3(0, -2.6, 0), 0x000000)
     createTextGeometry("|+⟩", new THREE.Vector3(2.6, 0, 0), 0x000000)
     createTextGeometry("|-⟩", new THREE.Vector3(-2.6, 0, 0), 0x000000)
+    createTextGeometry("|+i⟩", new THREE.Vector3(0, 0, -2.6), 0x000000)
+    createTextGeometry("|-i⟩", new THREE.Vector3(0, 0, 2.6), 0x000000)
 
     let mouseDown = false
     let mouseX = 0
@@ -457,7 +459,7 @@ export default function Bloch() {
       sceneRef.current.remove(vectorRef.current)
 
       const newVector = new THREE.ArrowHelper(
-        new THREE.Vector3(x, z, y).normalize(),
+        new THREE.Vector3(x, y, z).normalize(),
         new THREE.Vector3(0, 0, 0),
         Math.sqrt(x * x + y * y + z * z) * 2,
         0xff6b35,
