@@ -28,10 +28,10 @@ class Complex {
   }
 
   toString(): string {
-    const realStr = (Object.is(this.real, -0) ? 0 : this.real).toFixed(4);
-    const imagStr = (Object.is(this.imag, -0) ? 0 : this.imag).toFixed(4);
-    const sign = this.imag >= 0 ? '+' : '-';
-    return `${realStr} ${sign} ${Math.abs(this.imag).toFixed(4)}i`;
+    const realStr = (Object.is(this.real, -0) ? 0 : this.real).toFixed(4)
+    const imagStr = (Object.is(this.imag, -0) ? 0 : this.imag).toFixed(4)
+    const sign = this.imag >= 0 ? "+" : "-"
+    return `${realStr} ${sign} ${Math.abs(this.imag).toFixed(4)}i`
   }
 }
 
@@ -539,7 +539,7 @@ export default function Bloch() {
           rel="noopener noreferrer"
           className={`flex items-center justify-center w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${
             isDarkMode
-              ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95"
+              ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
               : "bg-background/90 hover:bg-background/95"
           }`}
           title="View on GitHub"
@@ -590,8 +590,7 @@ export default function Bloch() {
                     className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-muted"}`}
                   >
                     a = {quantumState.a.toString()}
-                    <br />
-                    b = {quantumState.b.toString()}
+                    <br />b = {quantumState.b.toString()}
                   </div>
                 </div>
               </CardContent>
@@ -605,19 +604,14 @@ export default function Bloch() {
         <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
           <Button
             onClick={() => setShowMobilePanel(!showMobilePanel)}
-            className={`w-12 h-12 rounded-full backdrop-blur-md border shadow-xl transition-all ${
+            className={`w-10 h-10 rounded-full backdrop-blur-md border shadow-xl transition-all ${
               isDarkMode
                 ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
                 : "bg-background/90 hover:bg-background/95"
             }`}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"
-              />
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
             </svg>
           </Button>
 
@@ -690,8 +684,7 @@ export default function Bloch() {
                     className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-muted"}`}
                   >
                     a = {quantumState.a.real.toFixed(4)} + {quantumState.a.imag.toFixed(4)}i
-                    <br />
-                    b = {quantumState.b.real.toFixed(4)} + {quantumState.b.imag.toFixed(4)}i
+                    <br />b = {quantumState.b.real.toFixed(4)} + {quantumState.b.imag.toFixed(4)}i
                   </div>
                 </div>
               </div>
