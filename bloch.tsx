@@ -220,7 +220,7 @@ export default function Bloch() {
     const segments = 64
     for (let i = 0; i <= segments; i++) {
       const angle = (i / segments) * Math.PI * 2
-      equatorPoints.push(new THREE.Vector3(Math.cos(angle) * 2, 0, Math.sin(angle) * 2)) // 2倍に
+      equatorPoints.push(new THREE.Vector3(Math.cos(angle) * 2, 0, Math.sin(angle) * 2))
     }
 
     const equatorGeometry = new THREE.BufferGeometry().setFromPoints(equatorPoints)
@@ -500,6 +500,7 @@ export default function Bloch() {
     <div className="relative w-screen h-screen overflow-hidden">
       <div ref={mountRef} className="absolute inset-0" />
 
+      {/* Desktop Controls */}
       <div className="absolute top-4 right-4 z-50 hidden md:flex items-start gap-4">
         <Button
           onClick={toggleDarkMode}
@@ -599,8 +600,8 @@ export default function Bloch() {
         </div>
       </div>
 
+      {/* Mobile Controls */}
       <div className="md:hidden">
-        {/* Mobile toggle button */}
         <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
           <Button
             onClick={() => setShowMobilePanel(!showMobilePanel)}
@@ -610,12 +611,13 @@ export default function Bloch() {
                 : "bg-background/90 hover:bg-background/95"
             }`}
           >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />
+            <svg className="w-5 h-5" fill={isDarkMode ? "currentColor" : "#000000"} viewBox="0 0 24 24">
+              <circle cx="5" cy="12" r="2" />
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="19" cy="12" r="2" />
             </svg>
           </Button>
 
-          {/* Mobile panel */}
           {showMobilePanel && (
             <div
               className={`w-72 max-h-96 backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto transition-all ${
@@ -623,7 +625,6 @@ export default function Bloch() {
               }`}
             >
               <div className="p-3 space-y-3">
-                {/* Mobile header with controls */}
                 <div className="flex items-center justify-between">
                   <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : ""}`}>Controls</h3>
                   <div className="flex gap-2">
@@ -635,7 +636,25 @@ export default function Bloch() {
                         isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
                       }`}
                     >
-                      {isDarkMode ? "☀️" : "🌙"}
+                      {isDarkMode ? (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                          />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                          />
+                        </svg>
+                      )}
                     </Button>
                     <a
                       href="https://github.com/itsubaki/bloch"
@@ -652,7 +671,6 @@ export default function Bloch() {
                   </div>
                 </div>
 
-                {/* Quantum Gates */}
                 <div className="space-y-2">
                   <h4 className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>Quantum Gate</h4>
                   <div className="grid grid-cols-2 gap-1">
@@ -677,7 +695,6 @@ export default function Bloch() {
                   </Button>
                 </div>
 
-                {/* Current State - Compact */}
                 <div className="space-y-2">
                   <h4 className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>Quantum State</h4>
                   <div
