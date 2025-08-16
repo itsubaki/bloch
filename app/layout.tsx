@@ -3,6 +3,8 @@ import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
+import { Analytics } from '@vercel/analytics/next';
+
 export const metadata: Metadata = {
   title: 'Bloch',
   description: 'Created with v0',
@@ -26,6 +28,7 @@ html {
         `}</style>
       </head>
       <body>{children}</body>
+      <Analytics />
     </html>
   )
 }
