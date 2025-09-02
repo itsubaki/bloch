@@ -114,12 +114,11 @@ const quantumGates = {
 
 export default function Bloch() {
   const mountRef = useRef<HTMLDivElement>(null)
-  const sceneRef = useRef<THREE.Scene>()
-  const rendererRef = useRef<THREE.WebGLRenderer>()
-  const vectorRef = useRef<THREE.ArrowHelper>()
+  const sceneRef = useRef<THREE.Scene>(null)
+  const rendererRef = useRef<THREE.WebGLRenderer>(null)
+  const vectorRef = useRef<THREE.ArrowHelper>(null)
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
-  const [appliedGates, setAppliedGates] = useState<string[]>([])
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [showMobilePanel, setShowMobilePanel] = useState(false)
 
@@ -133,7 +132,7 @@ export default function Bloch() {
     const width = window.innerWidth
     const height = window.innerHeight
 
-    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000)
+    const camera = new THREE.PerspectiveCamera(90, width / height, 0.1, 1000)
     camera.position.set(3, 3, 3)
     camera.lookAt(0, 0, 0)
     cameraRef.current = camera
@@ -258,7 +257,6 @@ export default function Bloch() {
       0.1,
     )
 
-    stateVector.line.material.linewidth = 8
     vectorRef.current = stateVector
     scene.add(stateVector)
 
@@ -462,7 +460,6 @@ export default function Bloch() {
         0.1,
       )
 
-      newVector.line.material.linewidth = 8
       vectorRef.current = newVector
       sceneRef.current.add(newVector)
     }
@@ -471,12 +468,10 @@ export default function Bloch() {
   const apply = (g: string) => {
     const newState = quantumState.apply(g)
     setQuantumState(newState)
-    setAppliedGates((prev) => [...prev, g])
   }
 
   const reset = () => {
     setQuantumState(new QuantumState(new Complex(1), new Complex(0)))
-    setAppliedGates([])
 
     if (cameraRef.current) {
       cameraRef.current.position.set(3, 3, 3)
