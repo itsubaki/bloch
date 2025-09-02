@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 import { Analytics } from '@vercel/analytics/next';
+import { GoogleTagManager, GoogleAnalytics } from '@next/third-parties/google'
 
 export const metadata: Metadata = {
   title: 'Bloch',
@@ -29,6 +31,12 @@ html {
       </head>
       <body>{children}</body>
       <Analytics />
+      {process.env.NEXT_PUBLIC_GTM_ID && (
+        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+      )}
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}
     </html>
   )
 }
