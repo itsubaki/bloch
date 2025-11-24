@@ -9,7 +9,7 @@ class Complex {
   constructor(
     public real: number,
     public imag = 0,
-  ) {}
+  ) { }
 
   multiply(other: Complex): Complex {
     return new Complex(this.real * other.real - this.imag * other.imag, this.real * other.imag + this.imag * other.real)
@@ -39,7 +39,7 @@ class QuantumState {
   constructor(
     public a: Complex,
     public b: Complex,
-  ) {}
+  ) { }
 
   toCoordinates(): [number, number, number] {
     const aconj = this.a.conjugate()
@@ -113,14 +113,15 @@ const quantumGates = {
 }
 
 export default function Bloch() {
+  const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
+  const [isDarkMode, setIsDarkMode] = useState(true)
+  const [showMobilePanel, setShowMobilePanel] = useState(false)
+
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene>(null)
   const rendererRef = useRef<THREE.WebGLRenderer>(null)
   const vectorRef = useRef<THREE.ArrowHelper>(null)
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
-  const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
-  const [isDarkMode, setIsDarkMode] = useState(true)
-  const [showMobilePanel, setShowMobilePanel] = useState(false)
 
   useEffect(() => {
     if (!mountRef.current) return
@@ -219,9 +220,6 @@ export default function Bloch() {
     scene.add(equatorLine)
 
     const axisLength = 2.0
-    const axisMaterial = new THREE.LineBasicMaterial({
-      linewidth: 3,
-    })
 
     const xAxisGeometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(-axisLength, 0, 0),
@@ -377,7 +375,6 @@ export default function Bloch() {
 
           const sphericalCoords = new THREE.Spherical()
           sphericalCoords.setFromVector3(camera.position)
-
           sphericalCoords.radius = Math.max(2, Math.min(10, sphericalCoords.radius / scale))
 
           camera.position.setFromSpherical(sphericalCoords)
@@ -488,16 +485,15 @@ export default function Bloch() {
       <div ref={mountRef} className="absolute inset-0" />
 
       {/* Desktop Controls */}
-      <div className="absolute top-4 right-4 z-50 hidden md:flex items-start gap-4">
+      <div className="absolute top-4 right-4 z-50 hidden md:flex items-start gap-2">
         <Button
           onClick={toggleDarkMode}
           variant="outline"
           size="icon"
-          className={`w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${
-            isDarkMode
-              ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
-              : "bg-background/90 hover:bg-background/95"
-          }`}
+          className={`w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
+            ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
+            : "bg-background/90 hover:bg-background/95"
+            }`}
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
           {isDarkMode ? (
@@ -525,21 +521,16 @@ export default function Bloch() {
           href="https://github.com/itsubaki/bloch"
           target="_blank"
           rel="noopener noreferrer"
-          className={`flex items-center justify-center w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${
-            isDarkMode
-              ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
-              : "bg-background/90 hover:bg-background/95"
-          }`}
+          className={`flex items-center justify-center w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
+            ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
+            : "bg-background/90 hover:bg-background/95"
+            }`}
           title="View on GitHub"
         >
           <img src="/github-mark.svg" alt="GitHub" className={`w-6 h-6 ${isDarkMode ? "invert" : ""}`} />
         </a>
 
-        <div
-          className={`w-64 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto ${
-            isDarkMode ? "bg-gray-800/90 border-gray-700" : "bg-background/90"
-          }`}
-        >
+        <div className={`w-64 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto ${isDarkMode ? "bg-gray-800/90 border-gray-700" : "bg-background/90"}`}>
           <div className="p-3 space-y-3">
             <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
@@ -550,9 +541,8 @@ export default function Bloch() {
                   <Button
                     key={key}
                     onClick={() => apply(key)}
-                    className={`w-full justify-start text-sm h-8 ${
-                      isDarkMode ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white" : ""
-                    }`}
+                    className={`w-full justify-start text-sm h-8 ${isDarkMode ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white" : ""
+                      }`}
                     variant="outline"
                     style={{ borderColor: gate.color }}
                   >
@@ -590,74 +580,69 @@ export default function Bloch() {
       {/* Mobile Controls */}
       <div className="md:hidden">
         <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
-          <Button
-            onClick={() => setShowMobilePanel(!showMobilePanel)}
-            className={`w-10 h-10 rounded-full backdrop-blur-md border shadow-xl transition-all ${
-              isDarkMode
+          <div className="flex flex-row items-center gap-2">
+            <Button
+              onClick={toggleDarkMode}
+              variant="outline"
+              size="icon"
+              className={`w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
                 ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
                 : "bg-background/90 hover:bg-background/95"
-            }`}
-          >
-            <svg className="w-5 h-5" fill={isDarkMode ? "currentColor" : "#000000"} viewBox="0 0 24 24">
-              <circle cx="5" cy="12" r="2" />
-              <circle cx="12" cy="12" r="2" />
-              <circle cx="19" cy="12" r="2" />
-            </svg>
-          </Button>
+                }`}
+              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDarkMode ? (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                  />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                  />
+                </svg>
+              )}
+            </Button>
+
+            <a
+              href="https://github.com/itsubaki/bloch"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`flex items-center justify-center w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
+                ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
+                : "bg-background/90 hover:bg-background/95"
+                }`}
+              title="View on GitHub"
+            >
+              <img src="/github-mark.svg" alt="GitHub" className={`w-6 h-6 ${isDarkMode ? "invert" : ""}`} />
+            </a>
+
+            <Button
+              onClick={() => setShowMobilePanel(!showMobilePanel)}
+              className={`w-10 h-10 rounded-full backdrop-blur-md border shadow-xl transition-all ${isDarkMode
+                ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
+                : "bg-background/90 hover:bg-background/95"
+                }`}
+            >
+              <svg className="w-5 h-5" fill={isDarkMode ? "currentColor" : "#000000"} viewBox="0 0 24 24">
+                <circle cx="5" cy="12" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="19" cy="12" r="2" />
+              </svg>
+            </Button>
+          </div>
 
           {showMobilePanel && (
-            <div
-              className={`w-72 max-h-96 backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto transition-all ${
-                isDarkMode ? "bg-gray-800/95 border-gray-700" : "bg-background/95"
-              }`}
-            >
+            <div className={`w-52 max-h-96 backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto transition-all ${isDarkMode ? "bg-gray-800/95 border-gray-700" : "bg-background/95"}`}>
               <div className="p-3 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className={`text-sm font-semibold ${isDarkMode ? "text-white" : ""}`}>Controls</h3>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={toggleDarkMode}
-                      variant="outline"
-                      size="sm"
-                      className={`w-8 h-8 p-0 ${
-                        isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
-                      }`}
-                    >
-                      {isDarkMode ? (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                          />
-                        </svg>
-                      ) : (
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                          />
-                        </svg>
-                      )}
-                    </Button>
-                    <a
-                      href="https://github.com/itsubaki/bloch"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`flex items-center justify-center w-8 h-8 border rounded text-xs transition-colors ${
-                        isDarkMode
-                          ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white"
-                          : "bg-background border-border hover:bg-accent"
-                      }`}
-                    >
-                      <img src="/github-mark.svg" alt="GitHub" className={`w-4 h-4 ${isDarkMode ? "invert" : ""}`} />
-                    </a>
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <h4 className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>Quantum Gate</h4>
                   <div className="grid grid-cols-2 gap-1">
@@ -665,9 +650,8 @@ export default function Bloch() {
                       <Button
                         key={key}
                         onClick={() => apply(key)}
-                        className={`text-xs h-7 ${
-                          isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
-                        }`}
+                        className={`text-xs h-7 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
+                          }`}
                         variant="outline"
                         style={{ borderColor: gate.color }}
                       >
