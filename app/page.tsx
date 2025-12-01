@@ -4,113 +4,7 @@ import { useRef, useEffect, useState } from "react"
 import * as THREE from "three"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-
-class Complex {
-  constructor(
-    public real: number,
-    public imag = 0,
-  ) { }
-
-  multiply(other: Complex): Complex {
-    return new Complex(this.real * other.real - this.imag * other.imag, this.real * other.imag + this.imag * other.real)
-  }
-
-  add(other: Complex): Complex {
-    return new Complex(this.real + other.real, this.imag + other.imag)
-  }
-
-  conjugate(): Complex {
-    return new Complex(this.real, -this.imag)
-  }
-
-  magnitude(): number {
-    return Math.sqrt(this.real * this.real + this.imag * this.imag)
-  }
-
-  toString(): string {
-    const realStr = (Object.is(this.real, -0) ? 0 : this.real).toFixed(4)
-    const imagStr = (Object.is(this.imag, -0) ? 0 : this.imag).toFixed(4)
-    const sign = this.imag >= 0 ? "+" : "-"
-    return `${realStr} ${sign} ${Math.abs(this.imag).toFixed(4)}i`
-  }
-}
-
-class QuantumState {
-  constructor(
-    public a: Complex,
-    public b: Complex,
-  ) { }
-
-  toCoordinates(): [number, number, number] {
-    const aconj = this.a.conjugate()
-    const bconj = this.b.conjugate()
-
-    const x = 2 * aconj.multiply(this.b).real
-    const y = 2 * aconj.multiply(this.b).imag
-    const z = this.a.magnitude() ** 2 - this.b.magnitude() ** 2
-
-    return [y, z, x]
-  }
-
-  apply(gate: string): QuantumState {
-    const g = quantumGates[gate as keyof typeof quantumGates].matrix
-    const a = g[0][0].multiply(this.a).add(g[0][1].multiply(this.b))
-    const b = g[1][0].multiply(this.a).add(g[1][1].multiply(this.b))
-
-    return new QuantumState(a, b)
-  }
-}
-
-const quantumGates = {
-  X: {
-    name: "Pauli-X",
-    matrix: [
-      [new Complex(0, 0), new Complex(1, 0)],
-      [new Complex(1, 0), new Complex(0, 0)],
-    ],
-    color: "#ef4444",
-  },
-  Y: {
-    name: "Pauli-Y",
-    matrix: [
-      [new Complex(0, 0), new Complex(0, -1)],
-      [new Complex(0, 1), new Complex(0, 0)],
-    ],
-    color: "#f59e0b",
-  },
-  Z: {
-    name: "Pauli-Z",
-    matrix: [
-      [new Complex(1, 0), new Complex(0, 0)],
-      [new Complex(0, 0), new Complex(-1, 0)],
-    ],
-    color: "#3b82f6",
-  },
-  H: {
-    name: "Hadamard",
-    matrix: [
-      [new Complex(1 / Math.sqrt(2), 0), new Complex(1 / Math.sqrt(2), 0)],
-      [new Complex(1 / Math.sqrt(2), 0), new Complex(-1 / Math.sqrt(2), 0)],
-    ],
-    color: "#10b981",
-  },
-  S: {
-    name: "S",
-    matrix: [
-      [new Complex(1, 0), new Complex(0, 0)],
-      [new Complex(0, 0), new Complex(0, 1)],
-    ],
-    color: "#8b5cf6",
-  },
-  T: {
-    name: "T(π/8)",
-    matrix: [
-      [new Complex(1, 0), new Complex(0, 0)],
-      [new Complex(0, 0), new Complex(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4))],
-    ],
-    color: "#f97316",
-  },
-}
+import { Complex, QuantumState, quantumGates } from "@/lib/quantum"
 
 export default function Bloch() {
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
@@ -159,6 +53,7 @@ export default function Bloch() {
       opacity: 0.4,
     })
 
+    // Latitude lines
     const createLatitudeLine = (radius: number, y: number) => {
       const points = []
       const segments = 64
@@ -171,6 +66,17 @@ export default function Bloch() {
       return new THREE.Line(geometry, grid)
     }
 
+
+    for (let i = -4; i <= 4; i++) {
+      const y = i * 0.4
+      const radius = Math.sqrt(4 - y * y)
+      if (radius > 0.1) {
+        const latLine = createLatitudeLine(radius, y)
+        scene.add(latLine)
+      }
+    }
+
+    // Longitude lines
     const createLongitudeLine = (angle: number) => {
       const points = []
       const segments = 32
@@ -186,21 +92,13 @@ export default function Bloch() {
       return new THREE.Line(geometry, grid)
     }
 
-    for (let i = -4; i <= 4; i++) {
-      const y = i * 0.4
-      const radius = Math.sqrt(4 - y * y)
-      if (radius > 0.1) {
-        const latLine = createLatitudeLine(radius, y)
-        scene.add(latLine)
-      }
-    }
-
     for (let i = 0; i < 16; i++) {
       const angle = (i / 16) * Math.PI * 2
       const longLine = createLongitudeLine(angle)
       scene.add(longLine)
     }
 
+    // Equator line
     const equatorMaterial = new THREE.LineBasicMaterial({
       color: 0x666666,
       transparent: true,
@@ -219,8 +117,8 @@ export default function Bloch() {
     const equatorLine = new THREE.Line(equatorGeometry, equatorMaterial)
     scene.add(equatorLine)
 
+    // X, Y, Z axes
     const axisLength = 2.0
-
     const xAxisGeometry = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(-axisLength, 0, 0),
       new THREE.Vector3(axisLength, 0, 0),
@@ -258,6 +156,7 @@ export default function Bloch() {
     vectorRef.current = stateVector
     scene.add(stateVector)
 
+    // State labels
     const createTextGeometry = (text: string, position: THREE.Vector3, color: number) => {
       const canvas = document.createElement("canvas")
       const context = canvas.getContext("2d")!
@@ -283,6 +182,7 @@ export default function Bloch() {
     createTextGeometry("|i⟩", new THREE.Vector3(2.6, 0, 0), 0x000000)
     createTextGeometry("|-i⟩", new THREE.Vector3(-2.6, 0, 0), 0x000000)
 
+    // Camera controls
     let mouseDown = false
     let mouseX = 0
     let mouseY = 0
@@ -408,12 +308,14 @@ export default function Bloch() {
     renderer.domElement.addEventListener("touchmove", onTouchMove, { passive: false })
     renderer.domElement.addEventListener("touchend", onTouchEnd, { passive: false })
 
+    // Animation loop
     const animate = () => {
       requestAnimationFrame(animate)
       renderer.render(scene, camera)
     }
     animate()
 
+    // Handle window resize
     const handleResize = () => {
       const width = window.innerWidth
       const height = window.innerHeight
@@ -424,9 +326,9 @@ export default function Bloch() {
         rendererRef.current.setSize(width, height)
       }
     }
-
     window.addEventListener("resize", handleResize)
 
+    // Cleanup on unmount
     return () => {
       renderer.domElement.removeEventListener("mousedown", onMouseDown)
       renderer.domElement.removeEventListener("mouseup", onMouseUp)
@@ -463,8 +365,7 @@ export default function Bloch() {
   }, [quantumState])
 
   const apply = (g: string) => {
-    const newState = quantumState.apply(g)
-    setQuantumState(newState)
+    setQuantumState(quantumState.apply(g))
   }
 
   const reset = () => {

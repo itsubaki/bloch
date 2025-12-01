@@ -27,7 +27,9 @@ html {
 }
         `}</style>
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+      </body>
 
       <Analytics />
       {process.env.NEXT_PUBLIC_GTM_ID && (<GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />)}
