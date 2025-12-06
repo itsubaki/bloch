@@ -4,6 +4,8 @@ import * as THREE from "three"
 import { useRef, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DarkModeButton } from "@/components/darkmode"
+import { GitHubIcon } from "@/components/github"
 import { Complex, QuantumState, quantumGates } from "@/lib/quantum"
 
 export default function Bloch() {
@@ -18,7 +20,8 @@ export default function Bloch() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
 
   useEffect(() => {
-    if (!mountRef.current) return
+    const mount = mountRef.current
+    if (!mount) return
 
     const scene = new THREE.Scene()
     scene.background = new THREE.Color(isDarkMode ? 0x0a0a0f : 0xf8fafc)
@@ -37,7 +40,7 @@ export default function Bloch() {
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     rendererRef.current = renderer
-    mountRef.current.appendChild(renderer.domElement)
+    mount.appendChild(renderer.domElement)
 
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6)
     scene.add(ambientLight)
@@ -337,12 +340,14 @@ export default function Bloch() {
       renderer.domElement.removeEventListener("touchmove", onTouchMove)
       renderer.domElement.removeEventListener("touchend", onTouchEnd)
       window.removeEventListener("resize", handleResize)
-      if (mountRef.current && renderer.domElement) {
-        mountRef.current.removeChild(renderer.domElement)
+
+      if (mount && renderer.domElement) {
+        mount.removeChild(renderer.domElement)
       }
+
       renderer.dispose()
     }
-  }, [isDarkMode])
+  }, [isDarkMode, quantumState])
 
   useEffect(() => {
     if (vectorRef.current && sceneRef.current) {
@@ -386,43 +391,13 @@ export default function Bloch() {
 
       {/* Desktop Controls */}
       <div className="md:flex hidden absolute top-4 right-4 z-50 items-start gap-2">
-        <Button
-          onClick={toggleDarkMode}
-          variant="outline"
-          size="icon"
-          className={`w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
-            ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
-            : "bg-background/90 hover:bg-background/95"
-            }`}
-          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d={isDarkMode
-                ? "M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                : "M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-              }
-            />
-          </svg>
-        </Button>
+        <DarkModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+        <GitHubIcon isDarkMode={isDarkMode} />
 
-        <a
-          href="https://github.com/itsubaki/bloch"
-          target="_blank"
-          rel="noopener noreferrer"
-          className={`flex items-center justify-center w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
-            ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
-            : "bg-background/90 hover:bg-background/95"
-            }`}
-          title="View on GitHub"
-        >
-          <img src="/github-mark.svg" alt="GitHub" className={`w-6 h-6 ${isDarkMode ? "invert" : ""}`} />
-        </a>
-
-        <div className={`w-64 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto ${isDarkMode ? "bg-gray-800/90 border-gray-700" : "bg-background/90"}`}>
+        <div className={`w-64 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto ${isDarkMode
+          ? "bg-gray-800/90 border-gray-700"
+          : "bg-background/90"
+          }`}>
           <div className="p-3 space-y-3">
             <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
@@ -436,7 +411,10 @@ export default function Bloch() {
                   <Button
                     key={key}
                     onClick={() => apply(key)}
-                    className={`w-full justify-start text-sm h-8 ${isDarkMode ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white" : ""}`}
+                    className={`w-full justify-start text-sm h-8 ${isDarkMode
+                      ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"
+                      : ""
+                      }`}
                     variant="outline"
                     style={{ borderColor: gate.color }}
                   >
@@ -475,41 +453,8 @@ export default function Bloch() {
       <div className="md:hidden">
         <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
           <div className="flex flex-row items-center gap-2">
-            <Button
-              onClick={toggleDarkMode}
-              variant="outline"
-              size="icon"
-              className={`w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
-                ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
-                : "bg-background/90 hover:bg-background/95"
-                }`}
-              title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d={isDarkMode
-                    ? "M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    : "M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                  }
-                />
-              </svg>
-            </Button>
-
-            <a
-              href="https://github.com/itsubaki/bloch"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`flex items-center justify-center w-10 h-10 backdrop-blur-md border rounded-lg shadow-xl transition-colors ${isDarkMode
-                ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
-                : "bg-background/90 hover:bg-background/95"
-                }`}
-              title="View on GitHub"
-            >
-              <img src="/github-mark.svg" alt="GitHub" className={`w-6 h-6 ${isDarkMode ? "invert" : ""}`} />
-            </a>
+            <DarkModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+            <GitHubIcon isDarkMode={isDarkMode} />
 
             <Button
               onClick={() => setShowMobilePanel(!showMobilePanel)}
@@ -527,7 +472,10 @@ export default function Bloch() {
           </div>
 
           {showMobilePanel && (
-            <div className={`w-52 max-h-96 backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto transition-all ${isDarkMode ? "bg-gray-800/95 border-gray-700" : "bg-background/95"}`}>
+            <div className={`w-52 max-h-96 backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto transition-all ${isDarkMode
+              ? "bg-gray-800/95 border-gray-700"
+              : "bg-background/95"}`
+            }>
               <div className="p-3 space-y-3">
                 <div className="space-y-2">
                   <div className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>
@@ -549,6 +497,7 @@ export default function Bloch() {
                       </Button>
                     ))}
                   </div>
+
                   <Button onClick={reset} variant="destructive" className="w-full text-xs h-7">
                     Reset
                   </Button>
