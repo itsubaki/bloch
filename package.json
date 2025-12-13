@@ -49,7 +49,7 @@
     "geist": "latest",
     "input-otp": "latest",
     "lucide-react": "^0.454.0",
-    "next": "15.5.7",
+    "next": "15.5.9",
     "next-themes": "latest",
     "react": "^19",
     "react-day-picker": "latest",
