@@ -1,10 +1,12 @@
+/* eslint-disable @next/next/no-img-element */
+
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { GitHubIcon } from '@/components/github'
 
 vi.mock('next/image', () => ({
     default: (props: any) => {
-        return <img {...props} />
+        return <img {...props} alt="GitHub" />
     },
 }))
 
