@@ -437,7 +437,7 @@ export default function Bloch() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  <div className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-muted"}`}>
+                  <div className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100"}`}>
                     a = {quantumState.a.toString()}
                     <br />
                     b = {quantumState.b.toString()}
@@ -507,7 +507,7 @@ export default function Bloch() {
                   <div className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>
                     Quantum State
                   </div>
-                  <div className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-muted"}`}>
+                  <div className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"}`}>
                     a = {quantumState.a.real.toFixed(4)} + {quantumState.a.imag.toFixed(4)}i
                     <br />
                     b = {quantumState.b.real.toFixed(4)} + {quantumState.b.imag.toFixed(4)}i
