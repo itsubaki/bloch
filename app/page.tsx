@@ -378,12 +378,12 @@ export default function Bloch() {
 
     updateBottomOffset()
 
-    window.visualViewport?.addEventListener('resize', updateBottomOffset)
-    window.visualViewport?.addEventListener('scroll', updateBottomOffset)
+    window.visualViewport?.addEventListener("resize", updateBottomOffset)
+    window.visualViewport?.addEventListener("scroll", updateBottomOffset)
 
     return () => {
-      window.visualViewport?.removeEventListener('resize', updateBottomOffset)
-      window.visualViewport?.removeEventListener('scroll', updateBottomOffset)
+      window.visualViewport?.removeEventListener("resize", updateBottomOffset)
+      window.visualViewport?.removeEventListener("scroll", updateBottomOffset)
     }
   }, [])
 
