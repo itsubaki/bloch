@@ -11,6 +11,7 @@ import { Complex, QuantumState, quantumGates } from "@/lib/quantum"
 export default function Bloch() {
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [isDarkMode, setIsDarkMode] = useState(true)
+  const [bottomOffset, setBottomOffset] = useState(0)
 
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene>(null)
@@ -367,6 +368,25 @@ export default function Bloch() {
     }
   }, [quantumState])
 
+  useEffect(() => {
+    const updateBottomOffset = () => {
+      if (window.visualViewport) {
+        const offset = window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop
+        setBottomOffset(Math.max(0, offset))
+      }
+    }
+
+    updateBottomOffset()
+
+    window.visualViewport?.addEventListener("resize", updateBottomOffset)
+    window.visualViewport?.addEventListener("scroll", updateBottomOffset)
+
+    return () => {
+      window.visualViewport?.removeEventListener("resize", updateBottomOffset)
+      window.visualViewport?.removeEventListener("scroll", updateBottomOffset)
+    }
+  }, [])
+
   const apply = (g: string) => {
     setQuantumState(quantumState.apply(g))
   }
@@ -457,9 +477,11 @@ export default function Bloch() {
         </div>
 
         {/* Bottom panel */}
-        <div className={`absolute bottom-0 left-0 right-0 z-50 backdrop-blur-md border-t shadow-xl ${isDarkMode
-          ? "bg-gray-800/95 border-gray-700"
-          : "bg-background/95"}`}
+        <div
+          className={`fixed left-0 right-0 z-50 backdrop-blur-md border-t shadow-xl pb-[env(safe-area-inset-bottom)] ${isDarkMode
+            ? "bg-gray-800/95 border-gray-700"
+            : "bg-background/95"}`}
+          style={{ bottom: bottomOffset }}
         >
           <div className="p-3 space-y-2">
             <div className="flex flex-row gap-1 flex-wrap justify-center">
@@ -467,7 +489,7 @@ export default function Bloch() {
                 <Button
                   key={key}
                   onClick={() => apply(key)}
-                  className={`text-xs h-8 px-3 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""}`}
+                  className={`text-xs h-8 px-3 no-select-interactive ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""}`}
                   variant="outline"
                   style={{ borderColor: gate.color }}
                 >
@@ -476,7 +498,7 @@ export default function Bloch() {
                   </span>
                 </Button>
               ))}
-              <Button onClick={reset} variant="destructive" className="text-xs h-8 px-3">
+              <Button onClick={reset} variant="destructive" className="text-xs h-8 px-3 no-select-interactive">
                 Reset
               </Button>
             </div>
