@@ -11,7 +11,6 @@ import { Complex, QuantumState, quantumGates } from "@/lib/quantum"
 export default function Bloch() {
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [isDarkMode, setIsDarkMode] = useState(true)
-  const [showMobilePanel, setShowMobilePanel] = useState(false)
 
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene>(null)
@@ -451,71 +450,41 @@ export default function Bloch() {
 
       {/* Mobile Controls */}
       <div className="md:hidden">
-        <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2">
-          <div className="flex flex-row items-center gap-2">
-            <DarkModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
-            <GitHubIcon isDarkMode={isDarkMode} />
+        {/* Top buttons */}
+        <div className="absolute top-4 right-4 z-50 flex flex-row items-center gap-2">
+          <DarkModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
+          <GitHubIcon isDarkMode={isDarkMode} />
+        </div>
 
-            <Button
-              onClick={() => setShowMobilePanel(!showMobilePanel)}
-              className={`w-10 h-10 rounded-full backdrop-blur-md border shadow-xl transition-all ${isDarkMode
-                ? "bg-gray-800/90 border-gray-700 hover:bg-gray-700/95 text-white"
-                : "bg-background/90 hover:bg-background/95"
-                }`}
-            >
-              <svg className="w-5 h-5" fill={isDarkMode ? "currentColor" : "#000000"} viewBox="0 0 24 24">
-                <circle cx="5" cy="12" r="2" />
-                <circle cx="12" cy="12" r="2" />
-                <circle cx="19" cy="12" r="2" />
-              </svg>
-            </Button>
-          </div>
-
-          {showMobilePanel && (
-            <div className={`w-52 max-h-96 backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto transition-all ${isDarkMode
-              ? "bg-gray-800/95 border-gray-700"
-              : "bg-background/95"}`
-            }>
-              <div className="p-3 space-y-3">
-                <div className="space-y-2">
-                  <div className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>
-                    Quantum Gate
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-1">
-                    {Object.entries(quantumGates).map(([key, gate]) => (
-                      <Button
-                        key={key}
-                        onClick={() => apply(key)}
-                        className={`text-xs h-7 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""}`}
-                        variant="outline"
-                        style={{ borderColor: gate.color }}
-                      >
-                        <span className="font-mono" style={{ color: gate.color }}>
-                          {key}
-                        </span>
-                      </Button>
-                    ))}
-                  </div>
-
-                  <Button onClick={reset} variant="destructive" className="w-full text-xs h-7">
-                    Reset
-                  </Button>
-                </div>
-
-                <div className="space-y-2">
-                  <div className={`text-xs font-medium ${isDarkMode ? "text-white" : ""}`}>
-                    Quantum State
-                  </div>
-                  <div className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"}`}>
-                    a = {quantumState.a.real.toFixed(4)} + {quantumState.a.imag.toFixed(4)}i
-                    <br />
-                    b = {quantumState.b.real.toFixed(4)} + {quantumState.b.imag.toFixed(4)}i
-                  </div>
-                </div>
-              </div>
+        {/* Bottom panel */}
+        <div className={`absolute bottom-0 left-0 right-0 z-50 backdrop-blur-md border-t shadow-xl ${isDarkMode
+          ? "bg-gray-800/95 border-gray-700"
+          : "bg-background/95"}`
+        }>
+          <div className="p-3 space-y-2">
+            <div className="flex flex-row gap-1 flex-wrap justify-center">
+              {Object.entries(quantumGates).map(([key, gate]) => (
+                <Button
+                  key={key}
+                  onClick={() => apply(key)}
+                  className={`text-xs h-8 px-3 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""}`}
+                  variant="outline"
+                  style={{ borderColor: gate.color }}
+                >
+                  <span className="font-mono" style={{ color: gate.color }}>
+                    {key}
+                  </span>
+                </Button>
+              ))}
+              <Button onClick={reset} variant="destructive" className="text-xs h-8 px-3">
+                Reset
+              </Button>
             </div>
-          )}
+
+            <div className={`font-mono text-xs p-2 rounded text-center ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"}`}>
+              a = {quantumState.a.real.toFixed(4)} + {quantumState.a.imag.toFixed(4)}i | b = {quantumState.b.real.toFixed(4)} + {quantumState.b.imag.toFixed(4)}i
+            </div>
+          </div>
         </div>
       </div>
     </div>
