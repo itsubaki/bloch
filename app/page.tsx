@@ -489,7 +489,7 @@ export default function Bloch() {
                 <Button
                   key={key}
                   onClick={() => apply(key)}
-                  className={`text-xs h-8 px-3 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""}`}
+                  className={`text-xs h-8 px-3 no-select-interactive ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""}`}
                   variant="outline"
                   style={{ borderColor: gate.color }}
                 >
@@ -498,7 +498,7 @@ export default function Bloch() {
                   </span>
                 </Button>
               ))}
-              <Button onClick={reset} variant="destructive" className="text-xs h-8 px-3">
+              <Button onClick={reset} variant="destructive" className="text-xs h-8 px-3 no-select-interactive">
                 Reset
               </Button>
             </div>
