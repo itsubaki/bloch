@@ -459,8 +459,9 @@ export default function Bloch() {
         {/* Bottom panel */}
         <div className={`absolute bottom-0 left-0 right-0 z-50 backdrop-blur-md border-t shadow-xl ${isDarkMode
           ? "bg-gray-800/95 border-gray-700"
-          : "bg-background/95"}`
-        }>
+          : "bg-background/95"}`}
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
           <div className="p-3 space-y-2">
             <div className="flex flex-row gap-1 flex-wrap justify-center">
               {Object.entries(quantumGates).map(([key, gate]) => (
