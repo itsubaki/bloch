@@ -457,7 +457,7 @@ export default function Bloch() {
         </div>
 
         {/* Bottom panel */}
-        <div className={`absolute bottom-0 left-0 right-0 z-50 backdrop-blur-md border-t shadow-xl pb-24 ${isDarkMode
+        <div className={`absolute bottom-0 left-0 right-0 z-50 backdrop-blur-md border-t shadow-xl ${isDarkMode
           ? "bg-gray-800/95 border-gray-700"
           : "bg-background/95"}`}
         >
