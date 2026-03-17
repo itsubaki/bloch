@@ -347,6 +347,8 @@ export default function Bloch() {
 
       renderer.dispose()
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDarkMode])
 
   useEffect(() => {
