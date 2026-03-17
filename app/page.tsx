@@ -347,7 +347,7 @@ export default function Bloch() {
 
       renderer.dispose()
     }
-  }, [isDarkMode, quantumState])
+  }, [isDarkMode])
 
   useEffect(() => {
     if (vectorRef.current && sceneRef.current) {
