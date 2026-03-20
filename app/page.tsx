@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DarkModeButton } from "@/components/darkmode"
 import { GitHubIcon } from "@/components/github"
 import { Complex, QuantumState, quantumGates } from "@/lib/quantum"
+import { cn } from "@/lib/utils"
 
 export default function Bloch() {
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
@@ -411,14 +412,18 @@ export default function Bloch() {
       <div ref={mountRef} className="absolute inset-0" />
 
       {/* Desktop Controls */}
-      <div className="md:flex hidden absolute top-4 right-4 z-50 items-start gap-2">
+      <div className={cn(
+        "top-4 right-4 gap-2 z-50",
+        "md:flex hidden absolute items-start",
+      )}>
         <DarkModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
         <GitHubIcon isDarkMode={isDarkMode} />
 
-        <div className={`w-64 backdrop-blur-md border rounded-lg shadow-xl max-h-[calc(100vh-2rem)] overflow-y-auto ${isDarkMode
-          ? "bg-gray-800/90 border-gray-700"
-          : "bg-background/90"
-          }`}>
+        <div className={cn(
+          "w-64 max-h-[calc(100vh-2rem)]",
+          "backdrop-blur-md border rounded-lg shadow-xl overflow-y-auto",
+          isDarkMode ? "bg-gray-800/90 border-gray-700" : "bg-background/90"
+        )}>
           <div className="p-3 space-y-3">
             <Card className={isDarkMode ? "bg-gray-900/50 border-gray-700" : ""}>
               <CardHeader className="pb-3">
@@ -432,10 +437,11 @@ export default function Bloch() {
                   <Button
                     key={key}
                     onClick={() => apply(key)}
-                    className={`w-full justify-start text-sm h-8 ${isDarkMode
-                      ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white"
-                      : ""
-                      }`}
+                    className={cn(
+                      "h-8",
+                      "w-full justify-start text-sm",
+                      isDarkMode ? "bg-gray-800 border-gray-600 hover:bg-gray-700 text-white" : "",
+                    )}
                     variant="outline"
                     style={{ borderColor: gate.color }}
                   >
@@ -458,7 +464,10 @@ export default function Bloch() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  <div className={`font-mono text-xs p-2 rounded ${isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100"}`}>
+                  <div className={cn(
+                    "font-mono text-xs p-2 rounded",
+                    isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100"
+                  )}>
                     a = {quantumState.a.toString()}
                     <br />
                     b = {quantumState.b.toString()}
@@ -473,16 +482,21 @@ export default function Bloch() {
       {/* Mobile Controls */}
       <div className="md:hidden">
         {/* Top buttons */}
-        <div className="absolute top-4 right-4 z-50 flex flex-row items-center gap-2">
+        <div className={cn(
+          "top-4 right-4 z-50 gap-2",
+          "flex flex-row items-center absolute",
+        )}>
           <DarkModeButton isDarkMode={isDarkMode} toggleDarkMode={toggleDarkMode} />
           <GitHubIcon isDarkMode={isDarkMode} />
         </div>
 
         {/* Bottom panel */}
         <div
-          className={`fixed left-0 right-0 z-50 backdrop-blur-md border-t shadow-xl pb-[env(safe-area-inset-bottom)] ${isDarkMode
-            ? "bg-gray-800/95 border-gray-700"
-            : "bg-background/95"}`}
+          className={cn(
+            "left-0 right-0 z-50 pb-[env(safe-area-inset-bottom)]",
+            "fixed backdrop-blur-md border-t shadow-xl",
+            isDarkMode ? "bg-gray-800/95 border-gray-700" : "bg-background/95"
+          )}
           style={{ bottom: bottomOffset }}
         >
           <div className="p-3 space-y-2">
@@ -491,7 +505,11 @@ export default function Bloch() {
                 <Button
                   key={key}
                   onClick={() => apply(key)}
-                  className={`text-xs h-8 px-3 no-select-interactive ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""}`}
+                  className={cn(
+                    "h-8 px-3",
+                    "text-xs no-select-interactive",
+                    isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
+                  )}
                   variant="outline"
                   style={{ borderColor: gate.color }}
                 >
@@ -505,7 +523,11 @@ export default function Bloch() {
               </Button>
             </div>
 
-            <div className={`font-mono text-xs p-2 rounded text-center ${isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"}`}>
+            <div className={cn(
+              "p-2",
+              "font-mono text-xs rounded text-center",
+              isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"
+            )}>
               a = {quantumState.a.real.toFixed(4)} + {quantumState.a.imag.toFixed(4)}i
               <br />
               b = {quantumState.b.real.toFixed(4)} + {quantumState.b.imag.toFixed(4)}i
