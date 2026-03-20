@@ -6,9 +6,8 @@ import { GoogleTagManager, GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Bloch',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: 'Bloch Sphere',
+  description: 'The geometric representation of quantum states and operations',
 }
 
 export const viewport: Viewport = {
