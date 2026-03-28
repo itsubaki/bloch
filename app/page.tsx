@@ -39,7 +39,7 @@ export default function Bloch() {
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(width, height)
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.shadowMap.type = THREE.VSMShadowMap
     rendererRef.current = renderer
     mount.appendChild(renderer.domElement)
 
