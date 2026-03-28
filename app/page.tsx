@@ -9,17 +9,46 @@ import { GitHubIcon } from "@/components/github"
 import { Complex, QuantumState, quantumGates } from "@/lib/quantum"
 import { cn } from "@/lib/utils"
 
+const LABEL_CONFIGS = [
+  { text: "|0⟩", position: [0, 2.6, 0] as const },
+  { text: "|1⟩", position: [0, -2.6, 0] as const },
+  { text: "|+⟩", position: [0, 0, 2.6] as const },
+  { text: "|-⟩", position: [0, 0, -2.6] as const },
+  { text: "|i⟩", position: [2.6, 0, 0] as const },
+  { text: "|-i⟩", position: [-2.6, 0, 0] as const },
+]
+
 export default function Bloch() {
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [isDarkMode, setIsDarkMode] = useState(true)
   const [bottomOffset, setBottomOffset] = useState(0)
 
   const mountRef = useRef<HTMLDivElement>(null)
-  const sceneRef = useRef<THREE.Scene>(null)
-  const rendererRef = useRef<THREE.WebGLRenderer>(null)
-  const vectorRef = useRef<THREE.ArrowHelper>(null)
+  const sceneRef = useRef<THREE.Scene | null>(null)
+  const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
+  const vectorRef = useRef<THREE.ArrowHelper | null>(null)
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
+  const animationFrameRef = useRef<number | null>(null)
+  const labelSpritesRef = useRef<THREE.Sprite[]>([])
 
+  const createLabelTexture = (text: string, darkMode: boolean) => {
+    const canvas = document.createElement("canvas")
+    const context = canvas.getContext("2d")
+
+    if (!context) {
+      return null
+    }
+
+    canvas.width = 64
+    canvas.height = 64
+    context.fillStyle = darkMode ? "#ffffff" : "#000000"
+    context.font = "32px Arial"
+    context.textAlign = "center"
+    context.textBaseline = "middle"
+    context.fillText(text, 32, 32)
+
+    return new THREE.CanvasTexture(canvas)
+  }
   useEffect(() => {
     const mount = mountRef.current
     if (!mount) return
@@ -38,8 +67,6 @@ export default function Bloch() {
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(width, height)
-    renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.VSMShadowMap
     rendererRef.current = renderer
     mount.appendChild(renderer.domElement)
 
@@ -48,7 +75,6 @@ export default function Bloch() {
 
     const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8)
     directionalLight.position.set(5, 5, 5)
-    directionalLight.castShadow = true
     scene.add(directionalLight)
 
     const grid = new THREE.LineBasicMaterial({
@@ -159,31 +185,20 @@ export default function Bloch() {
     vectorRef.current = stateVector
     scene.add(stateVector)
 
-    // State labels
-    const createTextGeometry = (text: string, position: THREE.Vector3, color: number) => {
-      const canvas = document.createElement("canvas")
-      const context = canvas.getContext("2d")!
-      canvas.width = 64
-      canvas.height = 64
-      context.fillStyle = `#${(isDarkMode ? 0xffffff : 0x000000).toString(16).padStart(6, "0")}`
-      context.font = "32px Arial"
-      context.textAlign = "center"
-      context.fillText(text, 32, 40)
+    labelSpritesRef.current = LABEL_CONFIGS.flatMap(({ text, position }) => {
+      const texture = createLabelTexture(text, isDarkMode)
+      if (!texture) {
+        return []
+      }
 
-      const texture = new THREE.CanvasTexture(canvas)
       const material = new THREE.SpriteMaterial({ map: texture })
       const sprite = new THREE.Sprite(material)
-      sprite.position.copy(position)
+      sprite.position.set(position[0], position[1], position[2])
       sprite.scale.set(0.5, 0.5, 1)
       scene.add(sprite)
-    }
 
-    createTextGeometry("|0⟩", new THREE.Vector3(0, 2.6, 0), 0x000000)
-    createTextGeometry("|1⟩", new THREE.Vector3(0, -2.6, 0), 0x000000)
-    createTextGeometry("|+⟩", new THREE.Vector3(0, 0, 2.6), 0x000000)
-    createTextGeometry("|-⟩", new THREE.Vector3(0, 0, -2.6), 0x000000)
-    createTextGeometry("|i⟩", new THREE.Vector3(2.6, 0, 0), 0x000000)
-    createTextGeometry("|-i⟩", new THREE.Vector3(-2.6, 0, 0), 0x000000)
+      return [sprite]
+    })
 
     // Camera controls
     let mouseDown = false
@@ -313,7 +328,7 @@ export default function Bloch() {
 
     // Animation loop
     const animate = () => {
-      requestAnimationFrame(animate)
+      animationFrameRef.current = requestAnimationFrame(animate)
       renderer.render(scene, camera)
     }
     animate()
@@ -342,14 +357,54 @@ export default function Bloch() {
       renderer.domElement.removeEventListener("touchend", onTouchEnd)
       window.removeEventListener("resize", handleResize)
 
+      if (animationFrameRef.current !== null) {
+        cancelAnimationFrame(animationFrameRef.current)
+      }
+
       if (mount && renderer.domElement) {
         mount.removeChild(renderer.domElement)
       }
 
+      labelSpritesRef.current.forEach((sprite) => {
+        sprite.material.map?.dispose()
+        sprite.material.dispose()
+      })
+      labelSpritesRef.current = []
+
+      scene.traverse((object) => {
+        if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
+          object.geometry.dispose()
+        }
+      })
+
       renderer.dispose()
+      sceneRef.current = null
+      rendererRef.current = null
+      vectorRef.current = null
+      cameraRef.current = null
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (!sceneRef.current) {
+      return
+    }
+
+    sceneRef.current.background = new THREE.Color(isDarkMode ? 0x0a0a0f : 0xf8fafc)
+
+    labelSpritesRef.current.forEach((sprite, index) => {
+      const texture = createLabelTexture(LABEL_CONFIGS[index].text, isDarkMode)
+      if (!texture) {
+        return
+      }
+
+      const material = sprite.material
+      material.map?.dispose()
+      material.map = texture
+      material.needsUpdate = true
+    })
   }, [isDarkMode])
 
   useEffect(() => {
