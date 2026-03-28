@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { DarkModeButton } from "@/components/darkmode"
 import { GitHubIcon } from "@/components/github"
 import { Complex, QuantumState, quantumGates } from "@/lib/quantum"
+import { shadowMapType } from "@/lib/shadow-map"
 import { cn } from "@/lib/utils"
 
 export default function Bloch() {
@@ -39,7 +40,7 @@ export default function Bloch() {
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setSize(width, height)
     renderer.shadowMap.enabled = true
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap
+    renderer.shadowMap.type = shadowMapType
     rendererRef.current = renderer
     mount.appendChild(renderer.domElement)
 
