@@ -18,6 +18,50 @@ const LABEL_CONFIGS = [
   { text: "|-i⟩", position: [-2.6, 0, 0] as const },
 ]
 
+const disposeMaterial = (material: THREE.Material | THREE.Material[]) => {
+  const materials = Array.isArray(material) ? material : [material]
+
+  materials.forEach((entry) => {
+    Object.values(entry).forEach((value) => {
+      if (value instanceof THREE.Texture) {
+        value.dispose()
+      }
+    })
+
+    entry.dispose()
+  })
+}
+
+const disposeObjectResources = (object: THREE.Object3D) => {
+  const geometryHolder = object as THREE.Object3D & { geometry?: THREE.BufferGeometry }
+  const materialHolder = object as THREE.Object3D & { material?: THREE.Material | THREE.Material[] }
+
+  geometryHolder.geometry?.dispose()
+
+  if (materialHolder.material) {
+    disposeMaterial(materialHolder.material)
+  }
+}
+
+const createLabelTexture = (text: string, darkMode: boolean) => {
+  const canvas = document.createElement("canvas")
+  const context = canvas.getContext("2d")
+
+  if (!context) {
+    return null
+  }
+
+  canvas.width = 64
+  canvas.height = 64
+  context.fillStyle = darkMode ? "#ffffff" : "#000000"
+  context.font = "32px Arial"
+  context.textAlign = "center"
+  context.textBaseline = "middle"
+  context.fillText(text, 32, 32)
+
+  return new THREE.CanvasTexture(canvas)
+}
+
 export default function Bloch() {
   const [quantumState, setQuantumState] = useState(new QuantumState(new Complex(1), new Complex(0)))
   const [isDarkMode, setIsDarkMode] = useState(true)
@@ -30,25 +74,6 @@ export default function Bloch() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   const labelSpritesRef = useRef<THREE.Sprite[]>([])
-
-  const createLabelTexture = (text: string, darkMode: boolean) => {
-    const canvas = document.createElement("canvas")
-    const context = canvas.getContext("2d")
-
-    if (!context) {
-      return null
-    }
-
-    canvas.width = 64
-    canvas.height = 64
-    context.fillStyle = darkMode ? "#ffffff" : "#000000"
-    context.font = "32px Arial"
-    context.textAlign = "center"
-    context.textBaseline = "middle"
-    context.fillText(text, 32, 32)
-
-    return new THREE.CanvasTexture(canvas)
-  }
   useEffect(() => {
     const mount = mountRef.current
     if (!mount) return
@@ -193,6 +218,7 @@ export default function Bloch() {
 
       const material = new THREE.SpriteMaterial({ map: texture })
       const sprite = new THREE.Sprite(material)
+      sprite.userData.labelText = text
       sprite.position.set(position[0], position[1], position[2])
       sprite.scale.set(0.5, 0.5, 1)
       scene.add(sprite)
@@ -366,14 +392,13 @@ export default function Bloch() {
       }
 
       labelSpritesRef.current.forEach((sprite) => {
-        sprite.material.map?.dispose()
-        sprite.material.dispose()
+        disposeMaterial(sprite.material)
       })
       labelSpritesRef.current = []
 
       scene.traverse((object) => {
         if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
-          object.geometry.dispose()
+          disposeObjectResources(object)
         }
       })
 
@@ -394,8 +419,13 @@ export default function Bloch() {
 
     sceneRef.current.background = new THREE.Color(isDarkMode ? 0x0a0a0f : 0xf8fafc)
 
-    labelSpritesRef.current.forEach((sprite, index) => {
-      const texture = createLabelTexture(LABEL_CONFIGS[index].text, isDarkMode)
+    labelSpritesRef.current.forEach((sprite) => {
+      const labelText = typeof sprite.userData.labelText === "string" ? sprite.userData.labelText : null
+      if (!labelText) {
+        return
+      }
+
+      const texture = createLabelTexture(labelText, isDarkMode)
       if (!texture) {
         return
       }
@@ -410,7 +440,11 @@ export default function Bloch() {
   useEffect(() => {
     if (vectorRef.current && sceneRef.current) {
       const [x, y, z] = quantumState.toCoordinates()
-      sceneRef.current.remove(vectorRef.current)
+      const previousVector = vectorRef.current
+      sceneRef.current.remove(previousVector)
+      previousVector.traverse((object) => {
+        disposeObjectResources(object)
+      })
 
       const newVector = new THREE.ArrowHelper(
         new THREE.Vector3(x, y, z).normalize(),
