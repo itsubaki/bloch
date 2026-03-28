@@ -18,10 +18,16 @@ const LABEL_CONFIGS = [
   { text: "|-i⟩", position: [-2.6, 0, 0] as const },
 ]
 
-const disposeMaterial = (material: THREE.Material | THREE.Material[]) => {
+const disposeMaterial = (
+  material: THREE.Material | THREE.Material[],
+  disposedMaterials?: Set<THREE.Material>,
+) => {
   const materials = Array.isArray(material) ? material : [material]
-
   materials.forEach((entry) => {
+    if (disposedMaterials?.has(entry)) {
+      return
+    }
+
     Object.values(entry).forEach((value) => {
       if (value instanceof THREE.Texture) {
         value.dispose()
@@ -29,17 +35,17 @@ const disposeMaterial = (material: THREE.Material | THREE.Material[]) => {
     })
 
     entry.dispose()
+    disposedMaterials?.add(entry)
   })
 }
 
-const disposeObjectResources = (object: THREE.Object3D) => {
+const disposeObjectResources = (object: THREE.Object3D, disposedMaterials?: Set<THREE.Material>) => {
   const geometryHolder = object as THREE.Object3D & { geometry?: THREE.BufferGeometry }
   const materialHolder = object as THREE.Object3D & { material?: THREE.Material | THREE.Material[] }
 
   geometryHolder.geometry?.dispose()
-
   if (materialHolder.material) {
-    disposeMaterial(materialHolder.material)
+    disposeMaterial(materialHolder.material, disposedMaterials)
   }
 }
 
@@ -74,6 +80,7 @@ export default function Bloch() {
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
   const animationFrameRef = useRef<number | null>(null)
   const labelSpritesRef = useRef<THREE.Sprite[]>([])
+
   useEffect(() => {
     const mount = mountRef.current
     if (!mount) return
@@ -391,14 +398,16 @@ export default function Bloch() {
         mount.removeChild(renderer.domElement)
       }
 
+      const disposedMaterials = new Set<THREE.Material>()
+
       labelSpritesRef.current.forEach((sprite) => {
-        disposeMaterial(sprite.material)
+        disposeMaterial(sprite.material, disposedMaterials)
       })
       labelSpritesRef.current = []
 
       scene.traverse((object) => {
         if (object instanceof THREE.Mesh || object instanceof THREE.Line) {
-          disposeObjectResources(object)
+          disposeObjectResources(object, disposedMaterials)
         }
       })
 
@@ -441,9 +450,10 @@ export default function Bloch() {
     if (vectorRef.current && sceneRef.current) {
       const [x, y, z] = quantumState.toCoordinates()
       const previousVector = vectorRef.current
+      const disposedMaterials = new Set<THREE.Material>()
       sceneRef.current.remove(previousVector)
       previousVector.traverse((object) => {
-        disposeObjectResources(object)
+        disposeObjectResources(object, disposedMaterials)
       })
 
       const newVector = new THREE.ArrowHelper(
