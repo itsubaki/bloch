@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useBlochScene } from "@/hooks/use-bloch-scene"
 import { Complex, QuantumState } from "@/lib/quantum"
 
-const INVALID_LABEL_VALUE = 123
+const NON_STRING_LABEL_VALUE = 123
 
 const { mockRendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
   const instances: Array<{
@@ -247,7 +247,7 @@ describe("useBlochScene", () => {
     const scene = renderer.render.mock.calls[0][0] as THREE.Scene
     const labelSprites = scene.children.filter((child) => child instanceof THREE.Sprite) as THREE.Sprite[]
 
-    labelSprites[0].userData.labelText = INVALID_LABEL_VALUE
+    labelSprites[0].userData.labelText = NON_STRING_LABEL_VALUE
     getContextSpy.mockReturnValue(null)
 
     rerender(<TestComponent isDarkMode={false} quantumState={quantumState} />)

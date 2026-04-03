@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import Bloch from "@/app/page"
+import { Complex, QuantumState } from "@/lib/quantum"
 
-// The page component only passes this value through to child controls.
-const quantumState = { id: "state" }
+const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
 const applyGate = vi.fn()
 const resetState = vi.fn()
 const toggleDarkMode = vi.fn()
