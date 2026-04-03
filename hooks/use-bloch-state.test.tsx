@@ -3,10 +3,9 @@ import { describe, expect, it } from "vitest"
 import { useBlochState } from "@/hooks/use-bloch-state"
 
 describe("useBlochState", () => {
-  it("starts with the default quantum state in dark mode", () => {
+  it("starts with the default quantum state", () => {
     const { result } = renderHook(() => useBlochState())
 
-    expect(result.current.isDarkMode).toBe(true)
     expect(result.current.quantumState.a.toString()).toBe("1.0000 + 0.0000i")
     expect(result.current.quantumState.b.toString()).toBe("0.0000 + 0.0000i")
   })
@@ -35,15 +34,5 @@ describe("useBlochState", () => {
 
     expect(result.current.quantumState.a.toString()).toBe("1.0000 + 0.0000i")
     expect(result.current.quantumState.b.toString()).toBe("0.0000 + 0.0000i")
-  })
-
-  it("toggles dark mode independently", () => {
-    const { result } = renderHook(() => useBlochState())
-
-    act(() => {
-      result.current.toggleDarkMode()
-    })
-
-    expect(result.current.isDarkMode).toBe(false)
   })
 })
