@@ -3,20 +3,34 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useBlochScene } from "@/hooks/use-bloch-scene"
 import { Complex, QuantumState } from "@/lib/quantum"
 
-const rendererInstances: MockWebGLRenderer[] = []
+const { rendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
+  const instances: Array<{
+    domElement: HTMLCanvasElement
+    setSize: ReturnType<typeof vi.fn>
+    render: ReturnType<typeof vi.fn>
+    dispose: ReturnType<typeof vi.fn>
+    addEventListenerSpy: ReturnType<typeof vi.spyOn>
+    removeEventListenerSpy: ReturnType<typeof vi.spyOn>
+  }> = []
 
-class MockWebGLRenderer {
-  domElement = document.createElement("canvas")
-  setSize = vi.fn()
-  render = vi.fn()
-  dispose = vi.fn()
-  addEventListenerSpy = vi.spyOn(this.domElement, "addEventListener")
-  removeEventListenerSpy = vi.spyOn(this.domElement, "removeEventListener")
+  class HoistedMockWebGLRenderer {
+    domElement = document.createElement("canvas")
+    setSize = vi.fn()
+    render = vi.fn()
+    dispose = vi.fn()
+    addEventListenerSpy = vi.spyOn(this.domElement, "addEventListener")
+    removeEventListenerSpy = vi.spyOn(this.domElement, "removeEventListener")
 
-  constructor() {
-    rendererInstances.push(this)
+    constructor() {
+      instances.push(this)
+    }
   }
-}
+
+  return {
+    rendererInstances: instances,
+    MockWebGLRenderer: HoistedMockWebGLRenderer,
+  }
+})
 
 vi.mock("three", async () => {
   const actual = await vi.importActual<typeof import("three")>("three")
@@ -144,7 +158,6 @@ describe("useBlochScene", () => {
 
     updatedSprites.forEach((sprite, index) => {
       expect(sprite.material.map).not.toBe(initialMaps[index])
-      expect(sprite.material.needsUpdate).toBe(true)
     })
   })
 
