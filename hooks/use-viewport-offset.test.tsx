@@ -118,6 +118,7 @@ describe("useViewportOffset", () => {
     act(() => {
       viewport.height = 970
       viewport.offsetTop = 60
+      expect(window.innerHeight - viewport.height - viewport.offsetTop).toBe(-30)
       viewport.dispatch("scroll")
     })
 
@@ -130,12 +131,14 @@ describe("useViewportOffset", () => {
     setVisualViewport(viewport)
 
     const { unmount } = renderHook(() => useViewportOffset())
+    const resizeListener = viewport.addEventListener.mock.calls.find(([event]) => event === "resize")?.[1]
+    const scrollListener = viewport.addEventListener.mock.calls.find(([event]) => event === "scroll")?.[1]
 
     unmount()
 
-    expect(viewport.addEventListener).toHaveBeenCalledWith("resize", expect.any(Function))
-    expect(viewport.addEventListener).toHaveBeenCalledWith("scroll", expect.any(Function))
-    expect(viewport.removeEventListener).toHaveBeenCalledWith("resize", expect.any(Function))
-    expect(viewport.removeEventListener).toHaveBeenCalledWith("scroll", expect.any(Function))
+    expect(resizeListener).toEqual(expect.any(Function))
+    expect(scrollListener).toEqual(expect.any(Function))
+    expect(viewport.removeEventListener).toHaveBeenCalledWith("resize", resizeListener)
+    expect(viewport.removeEventListener).toHaveBeenCalledWith("scroll", scrollListener)
   })
 })
