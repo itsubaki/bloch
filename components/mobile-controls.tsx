@@ -45,50 +45,52 @@ export function MobileControls({
         style={{ bottom: bottomOffset }}
       >
         <div className="p-3 space-y-2">
-          <div className="flex flex-row gap-1 flex-wrap justify-center">
-            {Object.entries(quantumGates).map(([key, gate]) => (
-              <Button
-                key={key}
-                onClick={() => applyGate(key)}
-                className={cn(
-                  "h-8 px-3",
-                  "text-xs no-select-interactive",
-                  isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
-                )}
-                variant="outline"
-                style={{ borderColor: gate.color }}
-              >
-                <span className="font-mono" style={{ color: gate.color }}>
-                  {key}
-                </span>
-              </Button>
-            ))}
-            <Button onClick={reset} variant="destructive" className="text-xs h-8 px-3 no-select-interactive">
-              Reset
-            </Button>
-          </div>
-
-          <div className={cn(
-            "grid w-fit max-w-full grid-cols-[auto_auto] gap-x-2 gap-y-1 p-2 mx-auto",
-            "font-mono text-xs rounded",
-            isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"
-          )}>
-            {coefficients.map(({ label, value }) => (
-              <div key={label} className="contents">
-                <span>{label}</span>
-                <span
-                  className="inline-grid grid-cols-[1ch_auto_1ch_auto] items-baseline gap-x-1 tabular-nums whitespace-nowrap"
-                  data-testid={`${label[0]}-value`}
+          <div className="w-fit max-w-full mx-auto space-y-2">
+            <div className="flex flex-row gap-1 flex-wrap justify-center">
+              {Object.entries(quantumGates).map(([key, gate]) => (
+                <Button
+                  key={key}
+                  onClick={() => applyGate(key)}
+                  className={cn(
+                    "h-8 px-3",
+                    "text-xs no-select-interactive",
+                    isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600 text-white" : ""
+                  )}
+                  variant="outline"
+                  style={{ borderColor: gate.color }}
                 >
-                  <span className={value.realSign === "-" ? "" : "invisible"} aria-hidden={value.realSign !== "-"}>
-                    {value.realSign}
+                  <span className="font-mono" style={{ color: gate.color }}>
+                    {key}
                   </span>
-                  <span>{value.realDigits}</span>
-                  <span>{value.imagSign}</span>
-                  <span>{value.imagDigits}</span>
-                </span>
-              </div>
-            ))}
+                </Button>
+              ))}
+              <Button onClick={reset} variant="destructive" className="text-xs h-8 px-3 no-select-interactive">
+                Reset
+              </Button>
+            </div>
+
+            <div className={cn(
+              "grid w-full grid-cols-[max-content_max-content] justify-center gap-x-2 gap-y-1 p-2",
+              "font-mono text-xs rounded",
+              isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"
+            )}>
+              {coefficients.map(({ label, value }) => (
+                <div key={label} className="contents">
+                  <span>{label}</span>
+                  <span
+                    className="inline-grid grid-cols-[1ch_max-content_1ch_max-content] items-baseline gap-x-1 tabular-nums whitespace-nowrap"
+                    data-testid={`${label[0]}-value`}
+                  >
+                    <span className={value.realSign === "-" ? "" : "invisible"} aria-hidden={value.realSign !== "-"}>
+                      {value.realSign}
+                    </span>
+                    <span>{value.realDigits}</span>
+                    <span>{value.imagSign}</span>
+                    <span>{value.imagDigits}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
