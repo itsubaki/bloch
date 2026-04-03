@@ -87,7 +87,7 @@ function ResetOnlyTestComponent({
 
   return (
     <button onClick={resetCamera} type="button">
-      reset without mount
+      reset camera
     </button>
   )
 }
@@ -381,7 +381,7 @@ describe("useBlochScene", () => {
       <ResetOnlyTestComponent isDarkMode quantumState={quantumState} />,
     )
     expect(mockRendererInstances).toHaveLength(0)
-    fireEvent.click(getByRole("button", { name: "reset without mount" }))
+    fireEvent.click(getByRole("button", { name: "reset camera" }))
     expect(mockRendererInstances).toHaveLength(0)
   })
 
