@@ -2,7 +2,7 @@ import { DarkModeButton } from "@/components/darkmode"
 import { GitHubIcon } from "@/components/github"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { QuantumState, quantumGates } from "@/lib/quantum"
+import { QuantumState, formatComplexParts, quantumGates } from "@/lib/quantum"
 import { cn } from "@/lib/utils"
 
 type DesktopControlsProps = {
@@ -20,6 +20,11 @@ export function DesktopControls({
   reset,
   toggleDarkMode,
 }: DesktopControlsProps) {
+  const coefficients = [
+    { label: "a =", value: formatComplexParts(quantumState.a) },
+    { label: "b =", value: formatComplexParts(quantumState.b) },
+  ]
+
   return (
     <div className={cn(
       "top-4 right-4 gap-2 z-50",
@@ -74,12 +79,25 @@ export function DesktopControls({
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className={cn(
-                  "font-mono text-xs p-2 rounded",
+                  "grid grid-cols-[auto_1fr] gap-x-2 gap-y-1 font-mono text-xs p-2 rounded",
                   isDarkMode ? "bg-gray-800 text-gray-300" : "bg-gray-100"
                 )}>
-                  a = {quantumState.a.toString()}
-                  <br />
-                  b = {quantumState.b.toString()}
+                  {coefficients.map(({ label, value }) => (
+                    <div key={label} className="contents">
+                      <span>{label}</span>
+                      <span
+                        className="inline-grid grid-cols-[1ch_auto_1ch_auto] items-baseline gap-x-1 tabular-nums whitespace-nowrap"
+                        data-testid={`${label[0]}-value`}
+                      >
+                        <span className={value.realSign === "-" ? "" : "invisible"} aria-hidden={value.realSign !== "-"}>
+                          {value.realSign}
+                        </span>
+                        <span>{value.realDigits}</span>
+                        <span>{value.imagSign}</span>
+                        <span>{value.imagDigits}</span>
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </CardContent>

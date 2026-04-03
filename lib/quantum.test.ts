@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { Complex, QuantumState, quantumGates } from '@/lib/quantum'
+import { Complex, QuantumState, formatComplexParts, quantumGates } from '@/lib/quantum'
 
 describe('Complex', () => {
     it('supports arithmetic operations', () => {
@@ -22,6 +22,35 @@ describe('Complex', () => {
     it('formats negative zero consistently', () => {
         expect(new Complex(-0, -0).toString()).toBe('0.0000 + 0.0000i')
         expect(new Complex(1, -2).toString()).toBe('1.0000 - 2.0000i')
+    })
+})
+
+describe('formatComplexParts', () => {
+    it('splits positive values into aligned display parts', () => {
+        expect(formatComplexParts(new Complex(1, 2))).toEqual({
+            realDigits: '1.0000',
+            realSign: '+',
+            imagDigits: '2.0000i',
+            imagSign: '+',
+        })
+    })
+
+    it('preserves negative signs for real and imaginary parts', () => {
+        expect(formatComplexParts(new Complex(-3, -4))).toEqual({
+            realDigits: '3.0000',
+            realSign: '-',
+            imagDigits: '4.0000i',
+            imagSign: '-',
+        })
+    })
+
+    it('normalizes negative zero before formatting', () => {
+        expect(formatComplexParts(new Complex(-0, -0))).toEqual({
+            realDigits: '0.0000',
+            realSign: '+',
+            imagDigits: '0.0000i',
+            imagSign: '+',
+        })
     })
 })
 

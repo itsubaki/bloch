@@ -45,8 +45,10 @@ describe('DesktopControls', () => {
             expect(screen.getByRole('button', { name: `${key}${gate.name}` })).toBeInTheDocument()
         })
 
-        expect(screen.getByText(/a = 1\.0000 \+ 2\.0000i/)).toBeInTheDocument()
-        expect(screen.getByText(/b = 3\.0000 - 4\.0000i/)).toBeInTheDocument()
+        expect(screen.getByText('a =')).toBeInTheDocument()
+        expect(screen.getByTestId('a-value')).toHaveTextContent('1.0000+2.0000i')
+        expect(screen.getByText('b =')).toBeInTheDocument()
+        expect(screen.getByTestId('b-value')).toHaveTextContent('3.0000-4.0000i')
     })
 
     it('handles dark mode and button interactions', () => {

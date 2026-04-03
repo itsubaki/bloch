@@ -54,6 +54,18 @@ export class QuantumState {
     }
 }
 
+export function formatComplexParts(value: Complex) {
+    const real = Object.is(value.real, -0) ? 0 : value.real
+    const imag = Object.is(value.imag, -0) ? 0 : value.imag
+
+    return {
+        realDigits: Math.abs(real).toFixed(4),
+        realSign: real < 0 ? "-" : "+",
+        imagDigits: `${Math.abs(imag).toFixed(4)}i`,
+        imagSign: imag >= 0 ? "+" : "-",
+    }
+}
+
 export const quantumGates = {
     X: {
         name: "Pauli-X",
