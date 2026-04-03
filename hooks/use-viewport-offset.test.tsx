@@ -115,10 +115,10 @@ describe("useViewportOffset", () => {
 
     expect(result.current).toBe(150)
 
+    // 1000 - 970 - 60 = -30, so the hook should clamp the result to zero.
     act(() => {
       viewport.height = 970
       viewport.offsetTop = 60
-      expect(window.innerHeight - viewport.height - viewport.offsetTop).toBe(-30)
       viewport.dispatch("scroll")
     })
 
