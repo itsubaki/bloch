@@ -385,7 +385,7 @@ describe("useBlochScene", () => {
     ]
     const disposeSpies = arrayMaterial.map((material) => vi.spyOn(material, "dispose"))
 
-    vi.stubGlobal("requestAnimationFrame", vi.fn(() => 0))
+    vi.stubGlobal("requestAnimationFrame", vi.fn(() => 99))
     const { unmount } = render(<TestComponent isDarkMode quantumState={quantumState} />)
 
     const renderer = mockRendererInstances[0]
@@ -399,7 +399,7 @@ describe("useBlochScene", () => {
     unmount()
 
     expect(resizeHandler).toBeDefined()
-    expect(cancelAnimationFrame).toHaveBeenCalledWith(0)
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(99)
     disposeSpies.forEach((disposeSpy) => expect(disposeSpy).toHaveBeenCalledOnce())
     expect(() => resizeHandler(new Event("resize"))).not.toThrow()
   })
