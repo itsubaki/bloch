@@ -11,11 +11,16 @@ vi.mock('next/image', () => ({
     },
 }))
 
+const DEFAULT_QUANTUM_STATE = new QuantumState(
+    new Complex(1, 2),
+    new Complex(3, -4),
+)
+
 function createProps(overrides = {}) {
     return {
         applyGate: vi.fn(),
         isDarkMode: false,
-        quantumState: new QuantumState(new Complex(1, 2), new Complex(3, -4)),
+        quantumState: DEFAULT_QUANTUM_STATE,
         reset: vi.fn(),
         toggleDarkMode: vi.fn(),
         ...overrides,

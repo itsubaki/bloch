@@ -11,12 +11,17 @@ vi.mock('next/image', () => ({
     },
 }))
 
+const DEFAULT_QUANTUM_STATE = new QuantumState(
+    new Complex(1, 2),
+    new Complex(3, -4),
+)
+
 function createProps(overrides = {}) {
     return {
         applyGate: vi.fn(),
         bottomOffset: 24,
         isDarkMode: false,
-        quantumState: new QuantumState(new Complex(0, 0), new Complex(1, 0)),
+        quantumState: DEFAULT_QUANTUM_STATE,
         reset: vi.fn(),
         toggleDarkMode: vi.fn(),
         ...overrides,
@@ -38,8 +43,8 @@ describe('MobileControls', () => {
         })
 
         expect(screen.getByRole('button', { name: 'Reset' })).toBeInTheDocument()
-        expect(screen.getByText(/a = 0\.0000 \+ 0\.0000i/)).toBeInTheDocument()
-        expect(screen.getByText(/b = 1\.0000 \+ 0\.0000i/)).toBeInTheDocument()
+        expect(screen.getByText(/a = 1\.0000 \+ 2\.0000i/)).toBeInTheDocument()
+        expect(screen.getByText(/b = 3\.0000 - 4\.0000i/)).toBeInTheDocument()
     })
 
     it('handles dark mode and mobile actions', () => {
