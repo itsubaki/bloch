@@ -6,12 +6,14 @@ import { DarkModeButton } from "@/components/darkmode"
 import { GitHubIcon } from "@/components/github"
 import { useBlochScene } from "@/hooks/use-bloch-scene"
 import { useBlochState } from "@/hooks/use-bloch-state"
+import { useDarkMode } from "@/hooks/use-dark-mode"
 import { useViewportOffset } from "@/hooks/use-viewport-offset"
 import { quantumGates } from "@/lib/quantum"
 import { cn } from "@/lib/utils"
 
 export default function Bloch() {
-  const { quantumState, isDarkMode, applyGate, resetState, toggleDarkMode } = useBlochState()
+  const { quantumState, applyGate, resetState } = useBlochState()
+  const { isDarkMode, toggleDarkMode } = useDarkMode()
   const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode })
   const bottomOffset = useViewportOffset()
 

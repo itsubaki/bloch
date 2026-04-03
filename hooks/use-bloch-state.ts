@@ -7,7 +7,6 @@ const createInitialQuantumState = () => new QuantumState(new Complex(1), new Com
 
 export function useBlochState() {
   const [quantumState, setQuantumState] = useState(createInitialQuantumState)
-  const [isDarkMode, setIsDarkMode] = useState(true)
 
   const applyGate = (gate: string) => {
     setQuantumState((previousState) => previousState.apply(gate))
@@ -17,15 +16,9 @@ export function useBlochState() {
     setQuantumState(createInitialQuantumState())
   }
 
-  const toggleDarkMode = () => {
-    setIsDarkMode((previousDarkMode) => !previousDarkMode)
-  }
-
   return {
     quantumState,
-    isDarkMode,
     applyGate,
     resetState,
-    toggleDarkMode,
   }
 }
