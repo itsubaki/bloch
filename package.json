@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
-    "@next/third-parties": "^16.1.7",
+    "@next/third-parties": "^16.2.2",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -48,8 +48,8 @@
     "embla-carousel-react": "latest",
     "geist": "latest",
     "input-otp": "latest",
-    "lucide-react": "^0.577.0",
-    "next": "16.1.7",
+    "lucide-react": "^1.7.0",
+    "next": "16.2.2",
     "next-themes": "latest",
     "react": "^19.2.4",
     "react-day-picker": "latest",
@@ -65,22 +65,22 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.2.1",
+    "@tailwindcss/postcss": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
-    "@types/node": "^25.5.0",
+    "@types/node": "^25.5.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/three": "^0.183.1",
     "@vitejs/plugin-react": "^6.0.1",
-    "@vitest/coverage-v8": "4.1.0",
-    "@vitest/ui": "^4.1.0",
-    "eslint": "^9.39.4",
-    "eslint-config-next": "^16.1.7",
-    "jsdom": "^29.0.0",
+    "@vitest/coverage-v8": "4.1.2",
+    "@vitest/ui": "^4.1.2",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "^16.2.2",
+    "jsdom": "^29.0.1",
     "postcss": "^8.5.8",
-    "tailwindcss": "^4.2.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.0"
+    "tailwindcss": "^4.2.2",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
   }
 }
