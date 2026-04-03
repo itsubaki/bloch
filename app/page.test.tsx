@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react"
 import { beforeEach, describe, expect, it, vi } from "vitest"
 import Bloch from "@/app/page"
 
+// The page component only passes this value through to child controls.
 const quantumState = { id: "state" }
 const applyGate = vi.fn()
 const resetState = vi.fn()
