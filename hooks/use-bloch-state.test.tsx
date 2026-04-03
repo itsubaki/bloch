@@ -22,20 +22,28 @@ describe("useBlochState", () => {
     expect(result.current.quantumState.b.toString()).toBe("1.0000 + 0.0000i")
   })
 
-  it("resets the state and toggles dark mode", () => {
+  it("resets the state to the initial values", () => {
     const { result } = renderHook(() => useBlochState())
 
     act(() => {
       result.current.applyGate("X")
-      result.current.toggleDarkMode()
     })
 
     act(() => {
       result.current.resetState()
     })
 
-    expect(result.current.isDarkMode).toBe(false)
     expect(result.current.quantumState.a.toString()).toBe("1.0000 + 0.0000i")
     expect(result.current.quantumState.b.toString()).toBe("0.0000 + 0.0000i")
+  })
+
+  it("toggles dark mode independently", () => {
+    const { result } = renderHook(() => useBlochState())
+
+    act(() => {
+      result.current.toggleDarkMode()
+    })
+
+    expect(result.current.isDarkMode).toBe(false)
   })
 })

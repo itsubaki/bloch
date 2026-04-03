@@ -77,7 +77,6 @@ export function useBlochScene({
   quantumState: QuantumState
   isDarkMode: boolean
 }) {
-  const initialQuantumStateRef = useRef(quantumState)
   const initialIsDarkModeRef = useRef(isDarkMode)
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene | null>(null)
@@ -204,19 +203,6 @@ export function useBlochScene({
     const zAxisMaterial = new THREE.LineBasicMaterial({ color: 0x00ff00, linewidth: 3 })
     const zAxisLine = new THREE.Line(zAxisGeometry, zAxisMaterial)
     scene.add(zAxisLine)
-
-    const [x, y, z] = initialQuantumStateRef.current.toCoordinates()
-    const stateVector = new THREE.ArrowHelper(
-      new THREE.Vector3(x, y, z).normalize(),
-      new THREE.Vector3(0, 0, 0),
-      getVectorLength(x, y, z),
-      0xff6b35,
-      0.2,
-      0.1,
-    )
-
-    vectorRef.current = stateVector
-    scene.add(stateVector)
 
     labelSpritesRef.current = LABEL_CONFIGS.flatMap(({ text, position }) => {
       const texture = createLabelTexture(text, initialIsDarkModeRef.current)
@@ -442,14 +428,17 @@ export function useBlochScene({
   }, [isDarkMode])
 
   useEffect(() => {
-    if (vectorRef.current && sceneRef.current) {
+    if (sceneRef.current) {
       const [x, y, z] = quantumState.toCoordinates()
-      const previousVector = vectorRef.current
       const disposedMaterials = new Set<THREE.Material>()
-      sceneRef.current.remove(previousVector)
-      previousVector.traverse((object) => {
-        disposeObjectResources(object, disposedMaterials)
-      })
+
+      if (vectorRef.current) {
+        const previousVector = vectorRef.current
+        sceneRef.current.remove(previousVector)
+        previousVector.traverse((object) => {
+          disposeObjectResources(object, disposedMaterials)
+        })
+      }
 
       const newVector = new THREE.ArrowHelper(
         new THREE.Vector3(x, y, z).normalize(),
