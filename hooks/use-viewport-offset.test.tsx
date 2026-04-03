@@ -88,30 +88,48 @@ describe("useViewportOffset", () => {
     expect(result.current).toBe(240)
   })
 
-  it("updates on viewport events, clamps negative values, and cleans up listeners", () => {
+  it("updates the offset on viewport events", () => {
     setInnerHeight(1000)
     const viewport = createVisualViewport(800, 50)
     setVisualViewport(viewport)
 
-    const { result, unmount } = renderHook(() => useViewportOffset())
+    const { result } = renderHook(() => useViewportOffset())
+
+    expect(result.current).toBe(150)
+
+    act(() => {
+      viewport.height = 900
+      viewport.offsetTop = 20
+      viewport.dispatch("resize")
+    })
+
+    expect(result.current).toBe(80)
+  })
+
+  it("clamps negative offsets to zero", () => {
+    setInnerHeight(1000)
+    const viewport = createVisualViewport(800, 50)
+    setVisualViewport(viewport)
+
+    const { result } = renderHook(() => useViewportOffset())
 
     expect(result.current).toBe(150)
 
     act(() => {
       viewport.height = 970
       viewport.offsetTop = 60
-      viewport.dispatch("resize")
-    })
-
-    expect(result.current).toBe(0)
-
-    act(() => {
-      viewport.height = 900
-      viewport.offsetTop = 20
       viewport.dispatch("scroll")
     })
 
-    expect(result.current).toBe(80)
+    expect(result.current).toBe(0)
+  })
+
+  it("removes viewport listeners on unmount", () => {
+    setInnerHeight(1000)
+    const viewport = createVisualViewport(800, 50)
+    setVisualViewport(viewport)
+
+    const { unmount } = renderHook(() => useViewportOffset())
 
     unmount()
 
