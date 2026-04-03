@@ -36,8 +36,8 @@ describe('DesktopControls', () => {
         expect(link).toHaveClass('bg-background/90')
 
         Object.entries(quantumGates).forEach(([key, gate]) => {
-            expect(screen.getByText(key)).toBeInTheDocument()
-            expect(screen.getByText(gate.name)).toBeInTheDocument()
+            expect(screen.getAllByText(key).length).toBeGreaterThan(0)
+            expect(screen.getByRole('button', { name: `${key}${gate.name}` })).toBeInTheDocument()
         })
 
         expect(screen.getByText(/a = 1\.0000 \+ 2\.0000i/)).toBeInTheDocument()
