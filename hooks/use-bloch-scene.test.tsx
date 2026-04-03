@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useBlochScene } from "@/hooks/use-bloch-scene"
 import { Complex, QuantumState } from "@/lib/quantum"
 
+const NON_STRING_LABEL_VALUE = 123
+
 const { mockRendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
   const instances: Array<{
     domElement: HTMLCanvasElement
@@ -60,6 +62,18 @@ function TestComponent({
       </button>
     </>
   )
+}
+
+function DetachedTestComponent({
+  quantumState,
+  isDarkMode,
+}: {
+  quantumState: QuantumState
+  isDarkMode: boolean
+}) {
+  useBlochScene({ quantumState, isDarkMode })
+
+  return null
 }
 
 describe("useBlochScene", () => {
@@ -159,6 +173,99 @@ describe("useBlochScene", () => {
     updatedSprites.forEach((sprite, index) => {
       expect(sprite.material.map).not.toBe(initialMaps[index])
     })
+  })
+
+  it("supports wheel zoom, touch rotation, and pinch zoom interactions", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
+
+    fireEvent.wheel(renderer.domElement, { deltaY: 120 })
+    expect(camera.position.length()).toBeCloseTo(Math.sqrt(27) + 1.2, 4)
+
+    fireEvent.wheel(renderer.domElement, { deltaY: -1000 })
+    expect(camera.position.length()).toBeCloseTo(2, 4)
+
+    fireEvent.touchStart(renderer.domElement, {
+      touches: [{ clientX: 10, clientY: 10 }],
+    })
+    const positionBeforeDrag = camera.position.toArray()
+    fireEvent.touchMove(renderer.domElement, {
+      touches: [{ clientX: 50, clientY: 35 }],
+    })
+    expect(camera.position.toArray()).not.toEqual(positionBeforeDrag)
+
+    fireEvent.touchStart(renderer.domElement, {
+      touches: [
+        { clientX: 0, clientY: 0 },
+        { clientX: 100, clientY: 0 },
+      ],
+    })
+    fireEvent.touchMove(renderer.domElement, {
+      touches: [
+        { clientX: 0, clientY: 0 },
+        { clientX: 200, clientY: 0 },
+      ],
+    })
+    expect(camera.position.length()).toBeCloseTo(2, 4)
+
+    fireEvent.touchEnd(renderer.domElement, {
+      touches: [{ clientX: 30, clientY: 30 }],
+    })
+    const positionBeforeSecondDrag = camera.position.toArray()
+    fireEvent.touchMove(renderer.domElement, {
+      touches: [{ clientX: 60, clientY: 45 }],
+    })
+    expect(camera.position.toArray()).not.toEqual(positionBeforeSecondDrag)
+
+    fireEvent.touchEnd(renderer.domElement, { touches: [] })
+    const positionBeforeIgnoredMove = camera.position.toArray()
+    fireEvent.touchMove(renderer.domElement, {
+      touches: [{ clientX: 80, clientY: 80 }],
+    })
+    expect(camera.position.toArray()).toEqual(positionBeforeIgnoredMove)
+
+    fireEvent.mouseDown(renderer.domElement, { clientX: 25, clientY: 25 })
+    fireEvent.mouseUp(renderer.domElement)
+    const positionBeforeMouseMove = camera.position.toArray()
+    fireEvent.mouseMove(renderer.domElement, { clientX: 70, clientY: 70 })
+    expect(camera.position.toArray()).toEqual(positionBeforeMouseMove)
+  })
+
+  it("handles missing scene mounts and skips invalid or unrenderable label updates", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    const getContextSpy = vi.spyOn(HTMLCanvasElement.prototype, "getContext")
+
+    const detached = render(<DetachedTestComponent isDarkMode quantumState={quantumState} />)
+    expect(mockRendererInstances).toHaveLength(0)
+    detached.rerender(<DetachedTestComponent isDarkMode={false} quantumState={quantumState} />)
+
+    const { rerender } = render(<TestComponent isDarkMode quantumState={quantumState} />)
+    const renderer = mockRendererInstances[0]
+    const scene = renderer.render.mock.calls[0][0] as THREE.Scene
+    const labelSprites = scene.children.filter((child) => child instanceof THREE.Sprite) as THREE.Sprite[]
+
+    labelSprites[0].userData.labelText = NON_STRING_LABEL_VALUE
+    getContextSpy.mockReturnValue(null)
+
+    rerender(<TestComponent isDarkMode={false} quantumState={quantumState} />)
+
+    expect(labelSprites).toHaveLength(6)
+  })
+
+  it("skips label sprite creation when canvas text rendering is unavailable", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null)
+    render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const scene = renderer.render.mock.calls[0][0] as THREE.Scene
+    const labelSprites = scene.children.filter((child) => child instanceof THREE.Sprite)
+
+    expect(labelSprites).toHaveLength(0)
   })
 
   it("removes listeners and disposes renderer resources on unmount", () => {
