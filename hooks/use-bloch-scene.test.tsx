@@ -250,15 +250,22 @@ describe("useBlochScene", () => {
     expect(camera.position.toArray()).toEqual(positionBeforeMouseMove)
   })
 
-  it("handles light-mode initialization and touch edge cases without changing the camera", () => {
+  it("initializes the scene in light mode", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     render(<TestComponent isDarkMode={false} quantumState={quantumState} />)
 
     const renderer = mockRendererInstances[0]
     const scene = renderer.render.mock.calls[0][0] as THREE.Scene
-    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
 
     expect(scene.background).toEqual(new THREE.Color(0xf8fafc))
+  })
+
+  it("ignores touch updates until the touch state becomes actionable", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    render(<TestComponent isDarkMode={false} quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
 
     const initialLength = camera.position.length()
     fireEvent.touchMove(renderer.domElement, {
@@ -269,6 +276,7 @@ describe("useBlochScene", () => {
     })
     expect(camera.position.length()).toBeCloseTo(initialLength, 4)
 
+    // Three touches should leave the hook in its idle fallback state.
     fireEvent.touchStart(renderer.domElement, {
       touches: [
         { clientX: 0, clientY: 0 },
@@ -374,6 +382,7 @@ describe("useBlochScene", () => {
     )
     expect(mockRendererInstances).toHaveLength(0)
     expect(() => fireEvent.click(getByRole("button", { name: "reset without mount" }))).not.toThrow()
+    expect(mockRendererInstances).toHaveLength(0)
   })
 
   it("cleans up safely and disposes array materials", () => {
