@@ -68,9 +68,9 @@ export function MobileControls({
             "font-mono text-xs rounded text-center",
             isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100"
           )}>
-            a = {quantumState.a.real.toFixed(4)} + {quantumState.a.imag.toFixed(4)}i
+            a = {quantumState.a.toString()}
             <br />
-            b = {quantumState.b.real.toFixed(4)} + {quantumState.b.imag.toFixed(4)}i
+            b = {quantumState.b.toString()}
           </div>
         </div>
       </div>
