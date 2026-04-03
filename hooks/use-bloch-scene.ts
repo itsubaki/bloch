@@ -75,6 +75,8 @@ export function useBlochScene({
   quantumState: QuantumState
   isDarkMode: boolean
 }) {
+  const initialQuantumStateRef = useRef(quantumState)
+  const initialIsDarkModeRef = useRef(isDarkMode)
   const mountRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene | null>(null)
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
@@ -88,7 +90,7 @@ export function useBlochScene({
     if (!mount) return
 
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color(isDarkMode ? 0x0a0a0f : 0xf8fafc)
+    scene.background = new THREE.Color(initialIsDarkModeRef.current ? 0x0a0a0f : 0xf8fafc)
     sceneRef.current = scene
 
     const width = window.innerWidth
@@ -201,7 +203,7 @@ export function useBlochScene({
     const zAxisLine = new THREE.Line(zAxisGeometry, zAxisMaterial)
     scene.add(zAxisLine)
 
-    const [x, y, z] = quantumState.toCoordinates()
+    const [x, y, z] = initialQuantumStateRef.current.toCoordinates()
     const stateVector = new THREE.ArrowHelper(
       new THREE.Vector3(x, y, z).normalize(),
       new THREE.Vector3(0, 0, 0),
@@ -215,7 +217,7 @@ export function useBlochScene({
     scene.add(stateVector)
 
     labelSpritesRef.current = LABEL_CONFIGS.flatMap(({ text, position }) => {
-      const texture = createLabelTexture(text, isDarkMode)
+      const texture = createLabelTexture(text, initialIsDarkModeRef.current)
       if (!texture) {
         return []
       }
@@ -410,8 +412,6 @@ export function useBlochScene({
       vectorRef.current = null
       cameraRef.current = null
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -452,7 +452,7 @@ export function useBlochScene({
       const newVector = new THREE.ArrowHelper(
         new THREE.Vector3(x, y, z).normalize(),
         new THREE.Vector3(0, 0, 0),
-        Math.sqrt(x * x + y * y + z * z) * 2,
+        2,
         0xff6b35,
         0.2,
         0.1,
