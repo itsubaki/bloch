@@ -369,14 +369,10 @@ describe("useBlochScene", () => {
   it("safely skips reset work when the scene never mounts", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
 
-    expect(() =>
-      render(<ResetOnlyTestComponent isDarkMode quantumState={quantumState} />),
-    ).not.toThrow()
-    expect(mockRendererInstances).toHaveLength(0)
-
     const { getByRole } = render(
       <ResetOnlyTestComponent isDarkMode quantumState={quantumState} />,
     )
+    expect(mockRendererInstances).toHaveLength(0)
     expect(() => fireEvent.click(getByRole("button", { name: "reset without mount" }))).not.toThrow()
   })
 
