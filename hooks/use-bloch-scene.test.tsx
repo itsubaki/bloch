@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest"
 import { useBlochScene } from "@/hooks/use-bloch-scene"
 import { Complex, QuantumState } from "@/lib/quantum"
 
-const { rendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
+const { mockRendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
   const instances: Array<{
     domElement: HTMLCanvasElement
     setSize: ReturnType<typeof vi.fn>
@@ -13,7 +13,7 @@ const { rendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
     removeEventListenerSpy: ReturnType<typeof vi.spyOn>
   }> = []
 
-  class HoistedMockWebGLRenderer {
+  class MockWebGLRenderer {
     domElement = document.createElement("canvas")
     setSize = vi.fn()
     render = vi.fn()
@@ -26,9 +26,9 @@ const { rendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
     }
   }
 
-  return {
-    rendererInstances: instances,
-    MockWebGLRenderer: HoistedMockWebGLRenderer,
+    return {
+    mockRendererInstances: instances,
+    MockWebGLRenderer,
   }
 })
 
@@ -64,7 +64,7 @@ function TestComponent({
 
 describe("useBlochScene", () => {
   beforeEach(() => {
-    rendererInstances.length = 0
+    mockRendererInstances.length = 0
     vi.clearAllMocks()
 
     Object.defineProperty(window, "innerWidth", {
@@ -96,7 +96,7 @@ describe("useBlochScene", () => {
       <TestComponent isDarkMode quantumState={quantumState} />,
     )
 
-    const renderer = rendererInstances[0]
+    const renderer = mockRendererInstances[0]
     const mount = getByTestId("mount")
     const scene = renderer.render.mock.calls[0][0] as THREE.Scene
     const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
@@ -137,7 +137,7 @@ describe("useBlochScene", () => {
       <TestComponent isDarkMode quantumState={initialState} />,
     )
 
-    const renderer = rendererInstances[0]
+    const renderer = mockRendererInstances[0]
     const scene = renderer.render.mock.calls[0][0] as THREE.Scene
     const initialVector = scene.children.find((child) => child instanceof THREE.ArrowHelper)
     const labelSprites = scene.children.filter((child) => child instanceof THREE.Sprite) as THREE.Sprite[]
@@ -168,7 +168,7 @@ describe("useBlochScene", () => {
       <TestComponent isDarkMode quantumState={quantumState} />,
     )
 
-    const renderer = rendererInstances[0]
+    const renderer = mockRendererInstances[0]
     const mount = getByTestId("mount")
 
     expect(mount).toContainElement(renderer.domElement)
