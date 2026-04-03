@@ -376,7 +376,7 @@ describe("useBlochScene", () => {
     expect(() => fireEvent.click(getByRole("button", { name: "reset without mount" }))).not.toThrow()
   })
 
-  it("cleans up safely when animation setup is skipped and disposes array materials", () => {
+  it("cleans up safely and disposes array materials", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     const addWindowListenerSpy = vi.spyOn(window, "addEventListener")
     const arrayMaterial = [
@@ -385,7 +385,7 @@ describe("useBlochScene", () => {
     ]
     const disposeSpies = arrayMaterial.map((material) => vi.spyOn(material, "dispose"))
 
-    vi.stubGlobal("requestAnimationFrame", vi.fn(() => null as unknown as number))
+    vi.stubGlobal("requestAnimationFrame", vi.fn(() => 0))
     const { unmount } = render(<TestComponent isDarkMode quantumState={quantumState} />)
 
     const renderer = mockRendererInstances[0]
@@ -399,7 +399,7 @@ describe("useBlochScene", () => {
     unmount()
 
     expect(resizeHandler).toBeDefined()
-    expect(cancelAnimationFrame).not.toHaveBeenCalled()
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(0)
     disposeSpies.forEach((disposeSpy) => expect(disposeSpy).toHaveBeenCalledOnce())
     expect(() => resizeHandler(new Event("resize"))).not.toThrow()
   })
