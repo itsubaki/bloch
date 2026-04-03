@@ -68,6 +68,8 @@ const resetCameraPosition = (camera: THREE.PerspectiveCamera) => {
   camera.lookAt(0, 0, 0)
 }
 
+const getVectorLength = (x: number, y: number, z: number) => Math.sqrt(x * x + y * y + z * z) * 2
+
 export function useBlochScene({
   quantumState,
   isDarkMode,
@@ -207,7 +209,7 @@ export function useBlochScene({
     const stateVector = new THREE.ArrowHelper(
       new THREE.Vector3(x, y, z).normalize(),
       new THREE.Vector3(0, 0, 0),
-      2,
+      getVectorLength(x, y, z),
       0xff6b35,
       0.2,
       0.1,
@@ -452,7 +454,7 @@ export function useBlochScene({
       const newVector = new THREE.ArrowHelper(
         new THREE.Vector3(x, y, z).normalize(),
         new THREE.Vector3(0, 0, 0),
-        2,
+        getVectorLength(x, y, z),
         0xff6b35,
         0.2,
         0.1,
