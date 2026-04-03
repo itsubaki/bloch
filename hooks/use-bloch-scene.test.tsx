@@ -76,6 +76,22 @@ function DetachedTestComponent({
   return null
 }
 
+function ResetOnlyTestComponent({
+  quantumState,
+  isDarkMode,
+}: {
+  quantumState: QuantumState
+  isDarkMode: boolean
+}) {
+  const { resetCamera } = useBlochScene({ quantumState, isDarkMode })
+
+  return (
+    <button onClick={resetCamera} type="button">
+      reset camera
+    </button>
+  )
+}
+
 describe("useBlochScene", () => {
   beforeEach(() => {
     mockRendererInstances.length = 0
@@ -234,6 +250,65 @@ describe("useBlochScene", () => {
     expect(camera.position.toArray()).toEqual(positionBeforeMouseMove)
   })
 
+  it("initializes the scene in light mode", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    render(<TestComponent isDarkMode={false} quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const scene = renderer.render.mock.calls[0][0] as THREE.Scene
+
+    expect(scene.background).toEqual(new THREE.Color(0xf8fafc))
+  })
+
+  it("ignores touch updates until the touch state becomes actionable", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    render(<TestComponent isDarkMode={false} quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
+
+    const initialLength = camera.position.length()
+    fireEvent.touchMove(renderer.domElement, {
+      touches: [
+        { clientX: 0, clientY: 0 },
+        { clientX: 100, clientY: 0 },
+      ],
+    })
+    expect(camera.position.length()).toBeCloseTo(initialLength, 4)
+
+    // Three touches should leave the hook in its idle fallback state.
+    fireEvent.touchStart(renderer.domElement, {
+      touches: [
+        { clientX: 0, clientY: 0 },
+        { clientX: 100, clientY: 0 },
+        { clientX: 50, clientY: 100 },
+      ],
+    })
+    const positionBeforeSingleTouchMove = camera.position.toArray()
+    fireEvent.touchMove(renderer.domElement, {
+      touches: [{ clientX: 40, clientY: 40 }],
+    })
+    expect(camera.position.toArray()).toEqual(positionBeforeSingleTouchMove)
+
+    fireEvent.touchStart(renderer.domElement, {
+      touches: [
+        { clientX: 0, clientY: 0 },
+        { clientX: 120, clientY: 0 },
+      ],
+    })
+    fireEvent.touchEnd(renderer.domElement, {
+      touches: [
+        { clientX: 10, clientY: 10 },
+        { clientX: 110, clientY: 10 },
+      ],
+    })
+    const positionAfterTwoTouchEnd = camera.position.toArray()
+    fireEvent.touchMove(renderer.domElement, {
+      touches: [{ clientX: 70, clientY: 70 }],
+    })
+    expect(camera.position.toArray()).toEqual(positionAfterTwoTouchEnd)
+  })
+
   it("handles missing scene mounts and skips invalid or unrenderable label updates", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     const getContextSpy = vi.spyOn(HTMLCanvasElement.prototype, "getContext")
@@ -297,5 +372,44 @@ describe("useBlochScene", () => {
     )
     expect(removeWindowListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function))
     expect(cancelAnimationFrame).toHaveBeenCalledWith(1)
+  })
+
+  it("safely skips reset work when the scene never mounts", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+
+    const { getByRole } = render(
+      <ResetOnlyTestComponent isDarkMode quantumState={quantumState} />,
+    )
+    expect(mockRendererInstances).toHaveLength(0)
+    fireEvent.click(getByRole("button", { name: "reset camera" }))
+    expect(mockRendererInstances).toHaveLength(0)
+  })
+
+  it("cleans up safely and disposes array materials", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    const addWindowListenerSpy = vi.spyOn(window, "addEventListener")
+    const arrayMaterial = [
+      new THREE.MeshBasicMaterial(),
+      new THREE.MeshBasicMaterial(),
+    ]
+    const disposeSpies = arrayMaterial.map((material) => vi.spyOn(material, "dispose"))
+
+    vi.stubGlobal("requestAnimationFrame", vi.fn(() => 99))
+    const { unmount } = render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const scene = renderer.render.mock.calls[0][0] as THREE.Scene
+    const resizeHandler = addWindowListenerSpy.mock.calls.find(
+      ([eventName]) => eventName === "resize",
+    )?.[1] as EventListener
+
+    scene.add(new THREE.Mesh(new THREE.BufferGeometry(), arrayMaterial))
+
+    unmount()
+
+    expect(resizeHandler).toBeDefined()
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(99)
+    disposeSpies.forEach((disposeSpy) => expect(disposeSpy).toHaveBeenCalledOnce())
+    expect(() => resizeHandler(new Event("resize"))).not.toThrow()
   })
 })
