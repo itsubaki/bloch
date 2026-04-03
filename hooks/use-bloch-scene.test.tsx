@@ -381,7 +381,7 @@ describe("useBlochScene", () => {
       <ResetOnlyTestComponent isDarkMode quantumState={quantumState} />,
     )
     expect(mockRendererInstances).toHaveLength(0)
-    expect(() => fireEvent.click(getByRole("button", { name: "reset without mount" }))).not.toThrow()
+    fireEvent.click(getByRole("button", { name: "reset without mount" }))
     expect(mockRendererInstances).toHaveLength(0)
   })
 
