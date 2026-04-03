@@ -224,6 +224,12 @@ describe("useBlochScene", () => {
       touches: [{ clientX: 80, clientY: 80 }],
     })
     expect(camera.position.toArray()).toEqual(positionBeforeIgnoredMove)
+
+    fireEvent.mouseDown(renderer.domElement, { clientX: 25, clientY: 25 })
+    fireEvent.mouseUp(renderer.domElement)
+    const positionBeforeMouseMove = camera.position.toArray()
+    fireEvent.mouseMove(renderer.domElement, { clientX: 70, clientY: 70 })
+    expect(camera.position.toArray()).toEqual(positionBeforeMouseMove)
   })
 
   it("handles missing scene mounts and skips invalid or unrenderable label updates", () => {
@@ -245,6 +251,19 @@ describe("useBlochScene", () => {
     rerender(<TestComponent isDarkMode={false} quantumState={quantumState} />)
 
     expect(labelSprites).toHaveLength(6)
+  })
+
+  it("skips label sprite creation when canvas text rendering is unavailable", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null)
+    render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const scene = renderer.render.mock.calls[0][0] as THREE.Scene
+    const labelSprites = scene.children.filter((child) => child instanceof THREE.Sprite)
+
+    expect(labelSprites).toHaveLength(0)
   })
 
   it("removes listeners and disposes renderer resources on unmount", () => {

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react"
+import { renderToStaticMarkup } from "react-dom/server"
 import { afterEach, describe, expect, it, vi } from "vitest"
 import RootLayout, { metadata, viewport } from "@/app/layout"
 
@@ -39,7 +39,7 @@ describe("app/layout", () => {
     delete process.env.NEXT_PUBLIC_GTM_ID
     delete process.env.NEXT_PUBLIC_GA_ID
 
-    const { container } = render(
+    const markup = renderToStaticMarkup(
       <RootLayout>
         <main>content</main>
       </RootLayout>,
@@ -50,30 +50,24 @@ describe("app/layout", () => {
       description: "The geometric representation of quantum states and operations",
     })
     expect(viewport).toMatchObject({ viewportFit: "cover" })
-
-    const html = container.querySelector("html")
-    const body = container.querySelector("body")
-
-    expect(html).toHaveAttribute("lang", "en")
-    expect(html).toHaveClass("font-sans-variable", "font-mono-variable")
-    expect(body).toHaveClass("font-sans-class")
-    expect(screen.getByText("content")).toBeInTheDocument()
-    expect(screen.getByTestId("analytics")).toBeInTheDocument()
-    expect(screen.queryByTestId("gtm")).not.toBeInTheDocument()
-    expect(screen.queryByTestId("ga")).not.toBeInTheDocument()
+    expect(markup).toContain('<html lang="en" class="font-sans-variable font-mono-variable">')
+    expect(markup).toContain('<body class="font-sans-class"><main>content</main>')
+    expect(markup).toContain('data-testid="analytics"')
+    expect(markup).not.toContain('data-testid="gtm"')
+    expect(markup).not.toContain('data-testid="ga"')
   })
 
   it("renders optional Google analytics integrations when ids are present", () => {
     process.env.NEXT_PUBLIC_GTM_ID = "GTM-TEST"
     process.env.NEXT_PUBLIC_GA_ID = "GA-TEST"
 
-    render(
+    const markup = renderToStaticMarkup(
       <RootLayout>
         <main>content</main>
       </RootLayout>,
     )
 
-    expect(screen.getByTestId("gtm")).toHaveTextContent("GTM-TEST")
-    expect(screen.getByTestId("ga")).toHaveTextContent("GA-TEST")
+    expect(markup).toContain('data-testid="gtm">GTM-TEST</div>')
+    expect(markup).toContain('data-testid="ga">GA-TEST</div>')
   })
 })
