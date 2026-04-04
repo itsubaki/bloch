@@ -204,9 +204,6 @@ describe("useBlochScene", () => {
     fireEvent.wheel(renderer.domElement, { deltaY: -1000 })
     expect(camera.position.length()).toBeCloseTo(2, 4)
 
-    fireEvent.wheel(renderer.domElement, { deltaY: 5000 })
-    expect(camera.position.length()).toBeCloseTo(10, 4)
-
     fireEvent.touchStart(renderer.domElement, {
       touches: [{ clientX: 10, clientY: 10 }],
     })
@@ -251,6 +248,9 @@ describe("useBlochScene", () => {
     const positionBeforeMouseMove = camera.position.toArray()
     fireEvent.mouseMove(renderer.domElement, { clientX: 70, clientY: 70 })
     expect(camera.position.toArray()).toEqual(positionBeforeMouseMove)
+
+    fireEvent.wheel(renderer.domElement, { deltaY: 5000 })
+    expect(camera.position.length()).toBeCloseTo(10, 4)
   })
 
   it("initializes the scene in light mode", () => {
