@@ -51,6 +51,32 @@ describe('DesktopControls', () => {
         expect(screen.getByTestId('b-value')).toHaveTextContent('3.0000-4.0000i')
     })
 
+    it('shows negative real coefficients without hiding the real sign', () => {
+        render(
+            <DesktopControls
+                {...createProps({
+                    quantumState: new QuantumState(
+                        new Complex(-1, 2),
+                        new Complex(-3, -4),
+                    ),
+                })}
+            />
+        )
+
+        const aRealSign = screen.getByTestId('a-value').querySelector('span')
+        const bRealSign = screen.getByTestId('b-value').querySelector('span')
+
+        expect(aRealSign).toHaveTextContent('-')
+        expect(aRealSign).not.toHaveClass('invisible')
+        expect(aRealSign).toHaveAttribute('aria-hidden', 'false')
+        expect(screen.getByTestId('a-value')).toHaveTextContent('-1.0000+2.0000i')
+
+        expect(bRealSign).toHaveTextContent('-')
+        expect(bRealSign).not.toHaveClass('invisible')
+        expect(bRealSign).toHaveAttribute('aria-hidden', 'false')
+        expect(screen.getByTestId('b-value')).toHaveTextContent('-3.0000-4.0000i')
+    })
+
     it('handles dark mode and button interactions', () => {
         const applyGate = vi.fn()
         const reset = vi.fn()
