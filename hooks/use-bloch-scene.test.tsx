@@ -204,6 +204,9 @@ describe("useBlochScene", () => {
     fireEvent.wheel(renderer.domElement, { deltaY: -1000 })
     expect(camera.position.length()).toBeCloseTo(2, 4)
 
+    fireEvent.wheel(renderer.domElement, { deltaY: 5000 })
+    expect(camera.position.length()).toBeCloseTo(10, 4)
+
     fireEvent.touchStart(renderer.domElement, {
       touches: [{ clientX: 10, clientY: 10 }],
     })
@@ -411,5 +414,16 @@ describe("useBlochScene", () => {
     expect(cancelAnimationFrame).toHaveBeenCalledWith(99)
     disposeSpies.forEach((disposeSpy) => expect(disposeSpy).toHaveBeenCalledOnce())
     expect(() => resizeHandler(new Event("resize"))).not.toThrow()
+  })
+
+  it("skips animation cleanup when no frame id is scheduled", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+
+    vi.stubGlobal("requestAnimationFrame", vi.fn(() => null as unknown as number))
+    const { unmount } = render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    unmount()
+
+    expect(cancelAnimationFrame).not.toHaveBeenCalled()
   })
 })
