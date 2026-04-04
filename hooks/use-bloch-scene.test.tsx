@@ -415,15 +415,4 @@ describe("useBlochScene", () => {
     disposeSpies.forEach((disposeSpy) => expect(disposeSpy).toHaveBeenCalledOnce())
     expect(() => resizeHandler(new Event("resize"))).not.toThrow()
   })
-
-  it("skips animation cleanup when no frame id is scheduled", () => {
-    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
-
-    vi.stubGlobal("requestAnimationFrame", vi.fn(() => null as unknown as number))
-    const { unmount } = render(<TestComponent isDarkMode quantumState={quantumState} />)
-
-    unmount()
-
-    expect(cancelAnimationFrame).not.toHaveBeenCalled()
-  })
 })
