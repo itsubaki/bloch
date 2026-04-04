@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button"
 import { QuantumState, formatComplexParts, noiseChannels, quantumGates } from "@/lib/quantum"
 import { cn } from "@/lib/utils"
 
+const normalizeNegativeZero = (value: number) => Object.is(value, -0) ? 0 : value
+
 type MobileControlsProps = {
   applyGate: (gate: string) => void
   applyNoise: (channel: string) => void
@@ -32,9 +34,9 @@ export function MobileControls({
     ? (() => {
         const [bx, by, bz] = quantumState.toBlochVector()
         return [
-          { label: "x =", testId: "x-value", value: Object.is(bx, -0) ? 0 : bx },
-          { label: "y =", testId: "y-value", value: Object.is(by, -0) ? 0 : by },
-          { label: "z =", testId: "z-value", value: Object.is(bz, -0) ? 0 : bz },
+          { label: "x =", testId: "x-value", value: normalizeNegativeZero(bx) },
+          { label: "y =", testId: "y-value", value: normalizeNegativeZero(by) },
+          { label: "z =", testId: "z-value", value: normalizeNegativeZero(bz) },
         ]
       })()
     : null

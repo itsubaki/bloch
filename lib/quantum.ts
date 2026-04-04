@@ -45,15 +45,15 @@ export class QuantumState {
     constructor(
         public a: Complex,
         public b: Complex,
-        private readonly _blochVector?: [number, number, number],
+        private readonly blochVector?: [number, number, number],
     ) { }
 
     get isMixed(): boolean {
-        return this._blochVector !== undefined
+        return this.blochVector !== undefined
     }
 
     toBlochVector(): [number, number, number] {
-        if (this._blochVector) return [...this._blochVector]
+        if (this.blochVector) return [...this.blochVector]
 
         const aconj = this.a.conjugate()
         const x = 2 * aconj.multiply(this.b).real
@@ -67,8 +67,8 @@ export class QuantumState {
         const aconj = this.a.conjugate()
         const bconj = this.b.conjugate()
 
-        if (this._blochVector) {
-            const [x, y, z] = this._blochVector
+        if (this.blochVector) {
+            const [x, y, z] = this.blochVector
             return [y, z, x]
         }
 
@@ -80,10 +80,10 @@ export class QuantumState {
     }
 
     apply(gate: string): QuantumState {
-        if (this._blochVector) {
+        if (this.blochVector) {
             const rotate = gateBlochRotations[gate]
             if (rotate) {
-                return new QuantumState(this.a, this.b, rotate(...this._blochVector))
+                return new QuantumState(this.a, this.b, rotate(...this.blochVector))
             }
         }
 
