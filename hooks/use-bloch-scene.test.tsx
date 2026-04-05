@@ -28,7 +28,7 @@ const { mockRendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
     }
   }
 
-    return {
+  return {
     mockRendererInstances: instances,
     MockWebGLRenderer,
   }
