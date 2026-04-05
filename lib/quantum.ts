@@ -28,15 +28,49 @@ export class Complex {
     }
 }
 
+const gateBlochRotations: Record<string, (x: number, y: number, z: number) => [number, number, number]> = {
+    X: (x, y, z) => [x, -y, -z],
+    Y: (x, y, z) => [-x, y, -z],
+    Z: (x, y, z) => [-x, -y, z],
+    H: (x, y, z) => [z, -y, x],
+    S: (x, y, z) => [-y, x, z],
+    T: (x, y, z) => [
+        x * Math.cos(Math.PI / 4) - y * Math.sin(Math.PI / 4),
+        x * Math.sin(Math.PI / 4) + y * Math.cos(Math.PI / 4),
+        z,
+    ],
+}
+
 export class QuantumState {
     constructor(
         public a: Complex,
         public b: Complex,
+        private readonly blochVector?: [number, number, number],
     ) { }
+
+    get isMixed(): boolean {
+        return this.blochVector !== undefined
+    }
+
+    toBlochVector(): [number, number, number] {
+        if (this.blochVector) return [...this.blochVector]
+
+        const aconj = this.a.conjugate()
+        const x = 2 * aconj.multiply(this.b).real
+        const y = 2 * aconj.multiply(this.b).imag
+        const z = this.a.magnitude() ** 2 - this.b.magnitude() ** 2
+
+        return [x, y, z]
+    }
 
     toCoordinates(): [number, number, number] {
         const aconj = this.a.conjugate()
         const bconj = this.b.conjugate()
+
+        if (this.blochVector) {
+            const [x, y, z] = this.blochVector
+            return [y, z, x]
+        }
 
         const x = 2 * aconj.multiply(this.b).real
         const y = 2 * aconj.multiply(this.b).imag
@@ -46,11 +80,24 @@ export class QuantumState {
     }
 
     apply(gate: string): QuantumState {
+        if (this.blochVector) {
+            const rotate = gateBlochRotations[gate]
+            if (rotate) {
+                return new QuantumState(this.a, this.b, rotate(...this.blochVector))
+            }
+        }
+
         const g = quantumGates[gate as keyof typeof quantumGates].matrix
         const a = g[0][0].multiply(this.a).add(g[0][1].multiply(this.b))
         const b = g[1][0].multiply(this.a).add(g[1][1].multiply(this.b))
 
         return new QuantumState(a, b)
+    }
+
+    applyNoise(channel: string): QuantumState {
+        const [x, y, z] = this.toBlochVector()
+        const { transform } = noiseChannels[channel as keyof typeof noiseChannels]
+        return new QuantumState(this.a, this.b, transform(x, y, z))
     }
 }
 
@@ -114,5 +161,32 @@ export const quantumGates = {
             [new Complex(0, 0), new Complex(Math.cos(Math.PI / 4), Math.sin(Math.PI / 4))],
         ],
         color: "#f97316",
+    },
+}
+
+export const noiseChannels = {
+    DEP: {
+        name: "Depolarizing",
+        color: "#ec4899",
+        transform: (x: number, y: number, z: number): [number, number, number] => {
+            const scale = 2 / 3
+            return [scale * x, scale * y, scale * z]
+        },
+    },
+    PD: {
+        name: "Phase Damping",
+        color: "#06b6d4",
+        transform: (x: number, y: number, z: number): [number, number, number] => {
+            return [0.5 * x, 0.5 * y, z]
+        },
+    },
+    AD: {
+        name: "Amplitude Damping",
+        color: "#84cc16",
+        transform: (x: number, y: number, z: number): [number, number, number] => {
+            const gamma = 0.5
+            const sqrtFactor = Math.sqrt(1 - gamma)
+            return [sqrtFactor * x, sqrtFactor * y, (1 - gamma) * z + gamma]
+        },
     },
 }

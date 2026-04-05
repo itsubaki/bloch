@@ -6,28 +6,28 @@ import { GoogleTagManager, GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Bloch Sphere',
-  description: 'The geometric representation of quantum states and operations',
+    title: 'Bloch Sphere',
+    description: 'The geometric representation of quantum states and operations',
 }
 
 export const viewport: Viewport = {
-  viewportFit: 'cover',
+    viewportFit: 'cover',
 }
 
 export default function RootLayout({
-  children,
+    children,
 }: Readonly<{
-  children: React.ReactNode
+    children: React.ReactNode
 }>) {
-  return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body className={GeistSans.className}>
-        {children}
-      </body>
+    return (
+        <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+            <body className={GeistSans.className}>
+                {children}
+            </body>
 
-      <Analytics />
-      {process.env.NEXT_PUBLIC_GTM_ID && (<GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />)}
-      {process.env.NEXT_PUBLIC_GA_ID && (<GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />)}
-    </html>
-  )
+            <Analytics />
+            {process.env.NEXT_PUBLIC_GTM_ID && (<GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />)}
+            {process.env.NEXT_PUBLIC_GA_ID && (<GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />)}
+        </html>
+    )
 }
