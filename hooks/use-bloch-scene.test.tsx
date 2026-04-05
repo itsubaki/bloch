@@ -65,11 +65,15 @@ import * as THREE from "three"
 function TestComponent({
   quantumState,
   isDarkMode,
+  applyGate = () => undefined,
+  reset = () => undefined,
 }: {
   quantumState: QuantumState
   isDarkMode: boolean
+  applyGate?: (gate: string) => void
+  reset?: () => void
 }) {
-  const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode })
+  const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, reset })
 
   return (
     <>
@@ -84,11 +88,15 @@ function TestComponent({
 function DetachedTestComponent({
   quantumState,
   isDarkMode,
+  applyGate = () => undefined,
+  reset = () => undefined,
 }: {
   quantumState: QuantumState
   isDarkMode: boolean
+  applyGate?: (gate: string) => void
+  reset?: () => void
 }) {
-  useBlochScene({ quantumState, isDarkMode })
+  useBlochScene({ quantumState, isDarkMode, applyGate, reset })
 
   return null
 }
@@ -96,11 +104,15 @@ function DetachedTestComponent({
 function ResetOnlyTestComponent({
   quantumState,
   isDarkMode,
+  applyGate = () => undefined,
+  reset = () => undefined,
 }: {
   quantumState: QuantumState
   isDarkMode: boolean
+  applyGate?: (gate: string) => void
+  reset?: () => void
 }) {
-  const { resetCamera } = useBlochScene({ quantumState, isDarkMode })
+  const { resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, reset })
 
   return (
     <button onClick={resetCamera} type="button">
@@ -264,6 +276,43 @@ describe("useBlochScene", () => {
     expect(camera.position.length()).toBeCloseTo(10, 4)
   })
 
+  it("applies gates and reset through keyboard shortcuts", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    const applyGate = vi.fn()
+    const reset = vi.fn()
+    render(
+      <TestComponent
+        applyGate={applyGate}
+        isDarkMode
+        quantumState={quantumState}
+        reset={reset}
+      />,
+    )
+
+    fireEvent.keyDown(window, { key: "x" })
+    fireEvent.keyDown(window, { key: "Y" })
+    fireEvent.keyDown(window, { key: "z" })
+    fireEvent.keyDown(window, { key: "h" })
+    fireEvent.keyDown(window, { key: "s" })
+    fireEvent.keyDown(window, { key: "t" })
+    fireEvent.keyDown(window, { key: "r" })
+    fireEvent.keyDown(window, { ctrlKey: true, key: "x" })
+
+    const input = document.createElement("input")
+    document.body.appendChild(input)
+    fireEvent.keyDown(input, { key: "x" })
+
+    expect(applyGate.mock.calls).toEqual([
+      ["X"],
+      ["Y"],
+      ["Z"],
+      ["H"],
+      ["S"],
+      ["T"],
+    ])
+    expect(reset).toHaveBeenCalledTimes(1)
+  })
+
   it("initializes the scene in light mode", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     render(<TestComponent isDarkMode={false} quantumState={quantumState} />)
@@ -385,6 +434,7 @@ describe("useBlochScene", () => {
       ]),
     )
     expect(removeWindowListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function))
+    expect(removeWindowListenerSpy).toHaveBeenCalledWith("keydown", expect.any(Function))
     expect(cancelAnimationFrame).toHaveBeenCalledWith(1)
   })
 

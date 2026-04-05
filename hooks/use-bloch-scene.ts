@@ -13,6 +13,15 @@ const LABEL_CONFIGS = [
     { text: "|-i⟩", position: [-2.6, 0, 0] as const },
 ]
 
+const KEY_TO_GATE = {
+    h: "H",
+    s: "S",
+    t: "T",
+    x: "X",
+    y: "Y",
+    z: "Z",
+} as const
+
 const disposeMaterial = (
     material: THREE.Material | THREE.Material[],
     disposedMaterials?: Set<THREE.Material>,
@@ -70,14 +79,28 @@ const resetCameraPosition = (camera: THREE.PerspectiveCamera) => {
 
 const getVectorLength = (x: number, y: number, z: number) => Math.sqrt(x * x + y * y + z * z) * 2
 
+const isEditableTarget = (target: EventTarget | null) =>
+    target instanceof HTMLElement
+    && (
+        target.isContentEditable
+        || target.tagName === "INPUT"
+        || target.tagName === "SELECT"
+        || target.tagName === "TEXTAREA"
+    )
+
 export function useBlochScene({
     quantumState,
     isDarkMode,
+    applyGate,
+    reset,
 }: {
     quantumState: QuantumState
     isDarkMode: boolean
+    applyGate: (gate: string) => void
+    reset: () => void
 }) {
     const initialIsDarkModeRef = useRef(isDarkMode)
+    const applyGateRef = useRef(applyGate)
     const mountRef = useRef<HTMLDivElement>(null)
     const sceneRef = useRef<THREE.Scene | null>(null)
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null)
@@ -85,6 +108,15 @@ export function useBlochScene({
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
     const animationFrameRef = useRef<number | null>(null)
     const labelSpritesRef = useRef<THREE.Sprite[]>([])
+    const resetRef = useRef(reset)
+
+    useEffect(() => {
+        applyGateRef.current = applyGate
+    }, [applyGate])
+
+    useEffect(() => {
+        resetRef.current = reset
+    }, [reset])
 
     useEffect(() => {
         const mount = mountRef.current
@@ -337,6 +369,35 @@ export function useBlochScene({
             }
         }
 
+        const onKeyDown = (event: KeyboardEvent) => {
+            if (
+                event.defaultPrevented
+                || event.altKey
+                || event.ctrlKey
+                || event.metaKey
+                || isEditableTarget(event.target)
+            ) {
+                return
+            }
+
+            const key = event.key.toLowerCase()
+
+            if (key === "r") {
+                event.preventDefault()
+                resetRef.current()
+                return
+            }
+
+            const gate = KEY_TO_GATE[key as keyof typeof KEY_TO_GATE]
+
+            if (!gate) {
+                return
+            }
+
+            event.preventDefault()
+            applyGateRef.current(gate)
+        }
+
         renderer.domElement.addEventListener("mousedown", onMouseDown)
         renderer.domElement.addEventListener("mouseup", onMouseUp)
         renderer.domElement.addEventListener("mousemove", onMouseMove)
@@ -344,6 +405,7 @@ export function useBlochScene({
         renderer.domElement.addEventListener("touchstart", onTouchStart, { passive: false })
         renderer.domElement.addEventListener("touchmove", onTouchMove, { passive: false })
         renderer.domElement.addEventListener("touchend", onTouchEnd, { passive: false })
+        window.addEventListener("keydown", onKeyDown)
 
         const animate = () => {
             animationFrameRef.current = requestAnimationFrame(animate)
@@ -371,6 +433,7 @@ export function useBlochScene({
             renderer.domElement.removeEventListener("touchstart", onTouchStart)
             renderer.domElement.removeEventListener("touchmove", onTouchMove)
             renderer.domElement.removeEventListener("touchend", onTouchEnd)
+            window.removeEventListener("keydown", onKeyDown)
             window.removeEventListener("resize", handleResize)
 
             if (animationFrameRef.current !== null) {

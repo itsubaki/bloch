@@ -12,6 +12,7 @@ const mountRef = { current: null }
 
 let desktopProps: Record<string, unknown> | undefined
 let mobileProps: Record<string, unknown> | undefined
+let blochSceneProps: Record<string, unknown> | undefined
 
 vi.mock("@/hooks/use-bloch-state", () => ({
     useBlochState: () => ({
@@ -29,10 +30,13 @@ vi.mock("@/hooks/use-dark-mode", () => ({
 }))
 
 vi.mock("@/hooks/use-bloch-scene", () => ({
-    useBlochScene: () => ({
-        mountRef,
-        resetCamera,
-    }),
+    useBlochScene: (props: Record<string, unknown>) => {
+        blochSceneProps = props
+        return {
+            mountRef,
+            resetCamera,
+        }
+    },
 }))
 
 vi.mock("@/hooks/use-viewport-offset", () => ({
@@ -65,6 +69,7 @@ describe("app/page", () => {
     beforeEach(() => {
         desktopProps = undefined
         mobileProps = undefined
+        blochSceneProps = undefined
         vi.clearAllMocks()
     })
 
@@ -74,6 +79,11 @@ describe("app/page", () => {
         expect(container.firstChild).toHaveClass("relative", "w-screen", "h-screen", "overflow-hidden")
         expect(container.querySelector(".absolute.inset-0")).toBeInTheDocument()
 
+        expect(blochSceneProps).toMatchObject({
+            applyGate,
+            isDarkMode: true,
+            quantumState,
+        })
         expect(desktopProps).toMatchObject({
             applyGate,
             isDarkMode: true,
@@ -87,6 +97,8 @@ describe("app/page", () => {
             quantumState,
             toggleDarkMode,
         })
+        expect(blochSceneProps?.reset).toBe(desktopProps?.reset)
+        expect(blochSceneProps?.reset).toBe(mobileProps?.reset)
     })
 
     it("resets both the quantum state and camera through child controls", () => {

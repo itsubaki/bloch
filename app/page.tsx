@@ -10,13 +10,14 @@ import { useViewportOffset } from "@/hooks/use-viewport-offset"
 export default function Bloch() {
     const { quantumState, applyGate, resetState } = useBlochState()
     const { isDarkMode, toggleDarkMode } = useDarkMode()
-    const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode })
     const bottomOffset = useViewportOffset()
 
     const reset = () => {
         resetState()
         resetCamera()
     }
+
+    const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, reset })
 
     return (
         <div className="relative w-screen h-screen overflow-hidden">
