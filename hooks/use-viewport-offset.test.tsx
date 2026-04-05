@@ -23,6 +23,10 @@ function setInnerHeight(value: number) {
     })
 }
 
+function clearVisualViewport() {
+    Reflect.deleteProperty(window, "visualViewport")
+}
+
 function setVisualViewport(viewport?: MockVisualViewport) {
     if (viewport) {
         Object.defineProperty(window, "visualViewport", {
@@ -33,7 +37,7 @@ function setVisualViewport(viewport?: MockVisualViewport) {
         return
     }
 
-    delete (window as Window & { visualViewport?: MockVisualViewport }).visualViewport
+    clearVisualViewport()
 }
 
 function createVisualViewport(height: number, offsetTop: number): MockVisualViewport {
@@ -61,7 +65,7 @@ afterEach(() => {
     if (originalVisualViewport) {
         Object.defineProperty(window, "visualViewport", originalVisualViewport)
     } else {
-        delete (window as Window & { visualViewport?: MockVisualViewport }).visualViewport
+        clearVisualViewport()
     }
 
     if (originalInnerHeight) {

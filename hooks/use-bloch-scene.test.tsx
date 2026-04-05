@@ -5,6 +5,23 @@ import { Complex, QuantumState } from "@/lib/quantum"
 
 const NON_STRING_LABEL_VALUE = 123
 
+const createMockCanvasContext = () =>
+({
+  fillStyle: "",
+  font: "",
+  textAlign: "center",
+  textBaseline: "middle",
+  fillText: vi.fn(),
+} as unknown as CanvasRenderingContext2D)
+
+const createGetContextMock = (context: CanvasRenderingContext2D | null) =>
+  ((contextId: string) => (contextId === "2d" ? context : null)) as typeof HTMLCanvasElement.prototype.getContext
+
+const mockCanvasGetContext = (context: CanvasRenderingContext2D | null = createMockCanvasContext()) =>
+  vi
+    .spyOn(HTMLCanvasElement.prototype, "getContext")
+    .mockImplementation(createGetContextMock(context))
+
 const { mockRendererInstances, MockWebGLRenderer } = vi.hoisted(() => {
   const instances: Array<{
     domElement: HTMLCanvasElement
@@ -108,13 +125,7 @@ describe("useBlochScene", () => {
       value: 768,
     })
 
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
-      fillStyle: "",
-      font: "",
-      textAlign: "center",
-      textBaseline: "middle",
-      fillText: vi.fn(),
-    } as unknown as CanvasRenderingContext2D)
+    mockCanvasGetContext()
 
     vi.stubGlobal("requestAnimationFrame", vi.fn(() => 1))
     vi.stubGlobal("cancelAnimationFrame", vi.fn())
@@ -314,7 +325,7 @@ describe("useBlochScene", () => {
 
   it("handles missing scene mounts and skips invalid or unrenderable label updates", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
-    const getContextSpy = vi.spyOn(HTMLCanvasElement.prototype, "getContext")
+    const getContextSpy = mockCanvasGetContext()
 
     const detached = render(<DetachedTestComponent isDarkMode quantumState={quantumState} />)
     expect(mockRendererInstances).toHaveLength(0)
@@ -326,7 +337,7 @@ describe("useBlochScene", () => {
     const labelSprites = scene.children.filter((child) => child instanceof THREE.Sprite) as THREE.Sprite[]
 
     labelSprites[0].userData.labelText = NON_STRING_LABEL_VALUE
-    getContextSpy.mockReturnValue(null)
+    getContextSpy.mockImplementation(createGetContextMock(null))
 
     rerender(<TestComponent isDarkMode={false} quantumState={quantumState} />)
 
@@ -336,7 +347,7 @@ describe("useBlochScene", () => {
   it("skips label sprite creation when canvas text rendering is unavailable", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
 
-    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue(null)
+    mockCanvasGetContext(null)
     render(<TestComponent isDarkMode quantumState={quantumState} />)
 
     const renderer = mockRendererInstances[0]
