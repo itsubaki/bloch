@@ -3,7 +3,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { DesktopControls } from '@/components/desktop-controls'
-import { Complex, QuantumState, noiseChannels, quantumGates } from '@/lib/quantum'
+import { Complex, QuantumState, quantumGates } from '@/lib/quantum'
 
 vi.mock('next/image', () => ({
     default: (props: React.ComponentProps<'img'>) => {
@@ -19,7 +19,6 @@ const DEFAULT_QUANTUM_STATE = new QuantumState(
 function createProps(overrides = {}) {
     return {
         applyGate: vi.fn(),
-        applyNoise: vi.fn(),
         isDarkMode: false,
         quantumState: DEFAULT_QUANTUM_STATE,
         reset: vi.fn(),
@@ -29,13 +28,12 @@ function createProps(overrides = {}) {
 }
 
 describe('DesktopControls', () => {
-    it('renders gate controls, noise controls, and quantum state in light mode', () => {
+    it('renders gate controls and quantum state in light mode', () => {
         const props = createProps()
         const { container } = render(<DesktopControls {...props} />)
 
         expect(container.firstChild).toHaveClass('md:flex', 'hidden', 'absolute')
         expect(screen.getByText('Quantum Gate')).toBeInTheDocument()
-        expect(screen.getByText('Noise Channel')).toBeInTheDocument()
         expect(screen.getByText('Quantum State')).toBeInTheDocument()
         expect(screen.getByTitle('Switch to Dark Mode')).toBeInTheDocument()
 
@@ -45,10 +43,6 @@ describe('DesktopControls', () => {
         Object.entries(quantumGates).forEach(([key, gate]) => {
             expect(screen.getAllByText(key).length).toBeGreaterThan(0)
             expect(screen.getByRole('button', { name: `${key}${gate.name}` })).toBeInTheDocument()
-        })
-
-        Object.entries(noiseChannels).forEach(([key, channel]) => {
-            expect(screen.getByRole('button', { name: `${key}${channel.name}` })).toBeInTheDocument()
         })
 
         expect(screen.getByText('a =')).toBeInTheDocument()
@@ -85,7 +79,6 @@ describe('DesktopControls', () => {
 
     it('handles dark mode and button interactions', () => {
         const applyGate = vi.fn()
-        const applyNoise = vi.fn()
         const reset = vi.fn()
         const toggleDarkMode = vi.fn()
 
@@ -93,7 +86,6 @@ describe('DesktopControls', () => {
             <DesktopControls
                 {...createProps({
                     applyGate,
-                    applyNoise,
                     isDarkMode: true,
                     reset,
                     toggleDarkMode,
@@ -113,21 +105,5 @@ describe('DesktopControls', () => {
         expect(applyGate).toHaveBeenCalledWith('X')
         expect(reset).toHaveBeenCalledTimes(1)
         expect(toggleDarkMode).toHaveBeenCalledTimes(1)
-
-        fireEvent.click(screen.getByRole('button', { name: 'DEPDepolarizing' }))
-        expect(applyNoise).toHaveBeenCalledWith('DEP')
-    })
-
-    it('shows Bloch coordinates when the quantum state is mixed', () => {
-        const mixedState = DEFAULT_QUANTUM_STATE.applyNoise('DEP')
-
-        render(<DesktopControls {...createProps({ quantumState: mixedState })} />)
-
-        expect(screen.getByText('Quantum State (Mixed)')).toBeInTheDocument()
-        expect(screen.getByTestId('x-value')).toBeInTheDocument()
-        expect(screen.getByTestId('y-value')).toBeInTheDocument()
-        expect(screen.getByTestId('z-value')).toBeInTheDocument()
-        expect(screen.queryByTestId('a-value')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('b-value')).not.toBeInTheDocument()
     })
 })

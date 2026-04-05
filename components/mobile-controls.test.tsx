@@ -3,7 +3,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { MobileControls } from '@/components/mobile-controls'
-import { Complex, QuantumState, noiseChannels, quantumGates } from '@/lib/quantum'
+import { Complex, QuantumState, quantumGates } from '@/lib/quantum'
 
 vi.mock('next/image', () => ({
     default: (props: React.ComponentProps<'img'>) => {
@@ -19,7 +19,6 @@ const DEFAULT_QUANTUM_STATE = new QuantumState(
 function createProps(overrides = {}) {
     return {
         applyGate: vi.fn(),
-        applyNoise: vi.fn(),
         bottomOffset: 24,
         isDarkMode: false,
         quantumState: DEFAULT_QUANTUM_STATE,
@@ -40,10 +39,6 @@ describe('MobileControls', () => {
         expect(container.querySelector('.fixed')).toHaveStyle({ bottom: '24px' })
 
         Object.keys(quantumGates).forEach((key) => {
-            expect(screen.getByRole('button', { name: key })).toBeInTheDocument()
-        })
-
-        Object.keys(noiseChannels).forEach((key) => {
             expect(screen.getByRole('button', { name: key })).toBeInTheDocument()
         })
 
@@ -82,14 +77,12 @@ describe('MobileControls', () => {
 
     it('handles dark mode and mobile actions', () => {
         const applyGate = vi.fn()
-        const applyNoise = vi.fn()
         const reset = vi.fn()
         const toggleDarkMode = vi.fn()
         const { container } = render(
             <MobileControls
                 {...createProps({
                     applyGate,
-                    applyNoise,
                     bottomOffset: 0,
                     isDarkMode: true,
                     reset,
@@ -110,20 +103,5 @@ describe('MobileControls', () => {
         expect(applyGate).toHaveBeenCalledWith('X')
         expect(reset).toHaveBeenCalledTimes(1)
         expect(toggleDarkMode).toHaveBeenCalledTimes(1)
-
-        fireEvent.click(screen.getByRole('button', { name: 'DEP' }))
-        expect(applyNoise).toHaveBeenCalledWith('DEP')
-    })
-
-    it('shows Bloch coordinates when the quantum state is mixed', () => {
-        const mixedState = DEFAULT_QUANTUM_STATE.applyNoise('PD')
-
-        render(<MobileControls {...createProps({ quantumState: mixedState })} />)
-
-        expect(screen.getByTestId('x-value')).toBeInTheDocument()
-        expect(screen.getByTestId('y-value')).toBeInTheDocument()
-        expect(screen.getByTestId('z-value')).toBeInTheDocument()
-        expect(screen.queryByTestId('a-value')).not.toBeInTheDocument()
-        expect(screen.queryByTestId('b-value')).not.toBeInTheDocument()
     })
 })

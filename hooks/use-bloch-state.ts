@@ -12,10 +12,6 @@ export function useBlochState() {
         setQuantumState((previousState) => previousState.apply(gate))
     }
 
-    const applyNoise = (channel: string) => {
-        setQuantumState((previousState) => previousState.applyNoise(channel))
-    }
-
     const resetState = () => {
         setQuantumState(createInitialQuantumState())
     }
@@ -23,7 +19,6 @@ export function useBlochState() {
     return {
         quantumState,
         applyGate,
-        applyNoise,
         resetState,
     }
 }

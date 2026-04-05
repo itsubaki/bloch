@@ -5,7 +5,6 @@ import { Complex, QuantumState } from "@/lib/quantum"
 
 const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
 const applyGate = vi.fn()
-const applyNoise = vi.fn()
 const resetState = vi.fn()
 const toggleDarkMode = vi.fn()
 const resetCamera = vi.fn()
@@ -18,7 +17,6 @@ vi.mock("@/hooks/use-bloch-state", () => ({
     useBlochState: () => ({
         quantumState,
         applyGate,
-        applyNoise,
         resetState,
     }),
 }))
@@ -78,14 +76,12 @@ describe("app/page", () => {
 
         expect(desktopProps).toMatchObject({
             applyGate,
-            applyNoise,
             isDarkMode: true,
             quantumState,
             toggleDarkMode,
         })
         expect(mobileProps).toMatchObject({
             applyGate,
-            applyNoise,
             bottomOffset: 48,
             isDarkMode: true,
             quantumState,
