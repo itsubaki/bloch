@@ -461,6 +461,14 @@ export function useBlochScene({
                         event.preventDefault()
                         rotateCamera(cameraRef.current, 0, 0.12)
                         return
+                    case "+":
+                        event.preventDefault()
+                        zoomCamera(cameraRef.current, -0.5)
+                        return
+                    case "-":
+                        event.preventDefault()
+                        zoomCamera(cameraRef.current, 0.5)
+                        return
                     default:
                         break
                 }

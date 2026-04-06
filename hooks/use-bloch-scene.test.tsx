@@ -343,6 +343,32 @@ describe("useBlochScene", () => {
     input.remove()
   })
 
+  it("zooms the camera with plus and minus keys", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
+    const initialDistance = camera.position.length()
+
+    fireEvent.keyDown(window, { key: "+" })
+    expect(camera.position.length()).toBeLessThan(initialDistance)
+
+    const zoomedInDistance = camera.position.length()
+    fireEvent.keyDown(window, { key: "-" })
+    expect(camera.position.length()).toBeGreaterThan(zoomedInDistance)
+
+    const distanceBeforeIgnoredZoom = camera.position.length()
+    fireEvent.keyDown(window, { ctrlKey: true, key: "+" })
+    expect(camera.position.length()).toBeCloseTo(distanceBeforeIgnoredZoom, 4)
+
+    const input = document.createElement("input")
+    document.body.appendChild(input)
+    fireEvent.keyDown(input, { key: "-" })
+    expect(camera.position.length()).toBeCloseTo(distanceBeforeIgnoredZoom, 4)
+    input.remove()
+  })
+
   it("initializes the scene in light mode", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     render(<TestComponent isDarkMode={false} quantumState={quantumState} />)
