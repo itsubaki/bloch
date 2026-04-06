@@ -8,10 +8,10 @@ import { useDarkMode } from "@/hooks/use-dark-mode"
 import { useViewportOffset } from "@/hooks/use-viewport-offset"
 
 export default function Bloch() {
-    const { quantumState, applyGate, resetState } = useBlochState()
     const { isDarkMode, toggleDarkMode } = useDarkMode()
-    const bottomOffset = useViewportOffset()
+    const { quantumState, applyGate, resetState } = useBlochState()
     const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, resetState })
+    const bottomOffset = useViewportOffset()
 
     const reset = () => {
         resetState()
@@ -30,11 +30,11 @@ export default function Bloch() {
             />
             <MobileControls
                 applyGate={applyGate}
-                bottomOffset={bottomOffset}
                 isDarkMode={isDarkMode}
                 quantumState={quantumState}
                 reset={reset}
                 toggleDarkMode={toggleDarkMode}
+                bottomOffset={bottomOffset}
             />
         </div>
     )
