@@ -11,13 +11,12 @@ export default function Bloch() {
     const { quantumState, applyGate, resetState } = useBlochState()
     const { isDarkMode, toggleDarkMode } = useDarkMode()
     const bottomOffset = useViewportOffset()
+    const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, resetState })
 
     const reset = () => {
         resetState()
         resetCamera()
     }
-
-    const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, reset })
 
     return (
         <div className="relative w-screen h-screen overflow-hidden">

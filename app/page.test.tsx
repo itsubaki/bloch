@@ -83,6 +83,7 @@ describe("app/page", () => {
             applyGate,
             isDarkMode: true,
             quantumState,
+            resetState,
         })
         expect(desktopProps).toMatchObject({
             applyGate,
@@ -97,8 +98,6 @@ describe("app/page", () => {
             quantumState,
             toggleDarkMode,
         })
-        expect(blochSceneProps?.reset).toBe(desktopProps?.reset)
-        expect(blochSceneProps?.reset).toBe(mobileProps?.reset)
     })
 
     it("resets both the quantum state and camera through child controls", () => {

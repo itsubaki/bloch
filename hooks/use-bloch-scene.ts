@@ -92,12 +92,12 @@ export function useBlochScene({
     quantumState,
     isDarkMode,
     applyGate,
-    reset,
+    resetState,
 }: {
     quantumState: QuantumState
     isDarkMode: boolean
     applyGate: (gate: string) => void
-    reset: () => void
+    resetState: () => void
 }) {
     const initialIsDarkModeRef = useRef(isDarkMode)
     const mountRef = useRef<HTMLDivElement>(null)
@@ -440,7 +440,10 @@ export function useBlochScene({
 
             if (key === "r") {
                 event.preventDefault()
-                reset()
+                resetState()
+                if (cameraRef.current) {
+                    resetCameraPosition(cameraRef.current)
+                }
                 return
             }
 
@@ -459,7 +462,7 @@ export function useBlochScene({
         return () => {
             window.removeEventListener("keydown", onKeyDown)
         }
-    }, [applyGate, reset])
+    }, [applyGate, resetState])
 
     useEffect(() => {
         if (!sceneRef.current) {

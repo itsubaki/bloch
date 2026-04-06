@@ -66,14 +66,14 @@ function TestComponent({
   quantumState,
   isDarkMode,
   applyGate = () => undefined,
-  reset = () => undefined,
+  resetState = () => undefined,
 }: {
   quantumState: QuantumState
   isDarkMode: boolean
   applyGate?: (gate: string) => void
-  reset?: () => void
+  resetState?: () => void
 }) {
-  const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, reset })
+  const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, resetState })
 
   return (
     <>
@@ -89,14 +89,14 @@ function DetachedTestComponent({
   quantumState,
   isDarkMode,
   applyGate = () => undefined,
-  reset = () => undefined,
+  resetState = () => undefined,
 }: {
   quantumState: QuantumState
   isDarkMode: boolean
   applyGate?: (gate: string) => void
-  reset?: () => void
+  resetState?: () => void
 }) {
-  useBlochScene({ quantumState, isDarkMode, applyGate, reset })
+  useBlochScene({ quantumState, isDarkMode, applyGate, resetState })
 
   return null
 }
@@ -105,14 +105,14 @@ function ResetOnlyTestComponent({
   quantumState,
   isDarkMode,
   applyGate = () => undefined,
-  reset = () => undefined,
+  resetState = () => undefined,
 }: {
   quantumState: QuantumState
   isDarkMode: boolean
   applyGate?: (gate: string) => void
-  reset?: () => void
+  resetState?: () => void
 }) {
-  const { resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, reset })
+  const { resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, resetState })
 
   return (
     <button onClick={resetCamera} type="button">
@@ -279,13 +279,13 @@ describe("useBlochScene", () => {
   it("applies gates and reset through keyboard shortcuts", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     const applyGate = vi.fn()
-    const reset = vi.fn()
+    const resetState = vi.fn()
     render(
       <TestComponent
         applyGate={applyGate}
         isDarkMode
         quantumState={quantumState}
-        reset={reset}
+        resetState={resetState}
       />,
     )
 
@@ -301,6 +301,7 @@ describe("useBlochScene", () => {
     const input = document.createElement("input")
     document.body.appendChild(input)
     fireEvent.keyDown(input, { key: "x" })
+    input.remove()
 
     expect(applyGate.mock.calls).toEqual([
       ["X"],
@@ -310,7 +311,7 @@ describe("useBlochScene", () => {
       ["S"],
       ["T"],
     ])
-    expect(reset).toHaveBeenCalledTimes(1)
+    expect(resetState).toHaveBeenCalledTimes(1)
   })
 
   it("initializes the scene in light mode", () => {
