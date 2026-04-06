@@ -183,6 +183,27 @@ describe("useBlochScene", () => {
     expect(renderer.setSize).toHaveBeenLastCalledWith(640, 480)
   })
 
+  it("skips latitude lines at the poles when their radius falls below the threshold", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const scene = renderer.render.mock.calls[0][0] as THREE.Scene
+    const horizontalYValues = scene.children
+      .filter((child): child is THREE.Line => child instanceof THREE.Line)
+      .map((line) => {
+        const positions = Array.from(line.geometry.getAttribute("position").array as Iterable<number>)
+        const yValues = positions.filter((_, index) => index % 3 === 1)
+        return yValues.every((y) => Math.abs(y - yValues[0]) < 1e-6) ? Number(yValues[0].toFixed(1)) : null
+      })
+      .filter((y): y is number => y !== null)
+      .sort((a, b) => a - b)
+
+    expect(horizontalYValues).toEqual([-1.6, -1.2, -0.8, -0.4, 0, 0, 0.4, 0.8, 1.2, 1.6])
+    expect(horizontalYValues).not.toContain(-2)
+    expect(horizontalYValues).not.toContain(2)
+  })
+
   it("updates the vector and label textures when props change", () => {
     const initialState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     const nextState = new QuantumState(new Complex(0, 0), new Complex(1, 0))

@@ -174,7 +174,7 @@ export function useBlochScene({
             return new THREE.Line(geometry, grid)
         }
 
-        for (let i = -4; i <= 4; i++) {
+        for (let i = -5; i <= 5; i++) {
             const y = i * 0.4
             const radius = Math.sqrt(4 - y * y)
             if (radius > 0.1) {
