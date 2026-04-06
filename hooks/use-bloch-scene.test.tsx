@@ -332,6 +332,16 @@ describe("useBlochScene", () => {
     expect(camera.position.toArray()).not.toEqual(positionAfterLeft)
     expect(camera.position.length()).toBeCloseTo(initialDistance, 4)
 
+    const positionAfterUp = camera.position.toArray()
+    fireEvent.keyDown(window, { key: "ArrowRight" })
+    expect(camera.position.toArray()).not.toEqual(positionAfterUp)
+    expect(camera.position.length()).toBeCloseTo(initialDistance, 4)
+
+    const positionAfterRight = camera.position.toArray()
+    fireEvent.keyDown(window, { key: "ArrowDown" })
+    expect(camera.position.toArray()).not.toEqual(positionAfterRight)
+    expect(camera.position.length()).toBeCloseTo(initialDistance, 4)
+
     const positionBeforeIgnoredMove = camera.position.toArray()
     fireEvent.keyDown(window, { ctrlKey: true, key: "ArrowRight" })
     expect(camera.position.toArray()).toEqual(positionBeforeIgnoredMove)
@@ -341,6 +351,32 @@ describe("useBlochScene", () => {
     fireEvent.keyDown(input, { key: "ArrowDown" })
     expect(camera.position.toArray()).toEqual(positionBeforeIgnoredMove)
     input.remove()
+  })
+
+  it("ignores unmapped keyboard shortcuts", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    const applyGate = vi.fn()
+    const resetState = vi.fn()
+    render(
+      <TestComponent
+        applyGate={applyGate}
+        isDarkMode
+        quantumState={quantumState}
+        resetState={resetState}
+      />,
+    )
+
+    const renderer = mockRendererInstances[0]
+    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
+    const positionBefore = camera.position.toArray()
+    const distanceBefore = camera.position.length()
+
+    fireEvent.keyDown(window, { key: "q" })
+
+    expect(camera.position.toArray()).toEqual(positionBefore)
+    expect(camera.position.length()).toBeCloseTo(distanceBefore, 4)
+    expect(applyGate).not.toHaveBeenCalled()
+    expect(resetState).not.toHaveBeenCalled()
   })
 
   it("zooms the camera with plus and minus keys", () => {
