@@ -110,13 +110,8 @@ export function useBlochScene({
     const labelSpritesRef = useRef<THREE.Sprite[]>([])
     const resetRef = useRef(reset)
 
-    useEffect(() => {
-        applyGateRef.current = applyGate
-    }, [applyGate])
-
-    useEffect(() => {
-        resetRef.current = reset
-    }, [reset])
+    applyGateRef.current = applyGate
+    resetRef.current = reset
 
     useEffect(() => {
         const mount = mountRef.current
