@@ -4,24 +4,6 @@ import * as THREE from "three"
 import { useEffect, useRef } from "react"
 import { QuantumState } from "@/lib/quantum"
 
-const LABEL_CONFIGS = [
-    { text: "|0⟩", position: [0, 2.6, 0] as const },
-    { text: "|1⟩", position: [0, -2.6, 0] as const },
-    { text: "|+⟩", position: [0, 0, 2.6] as const },
-    { text: "|-⟩", position: [0, 0, -2.6] as const },
-    { text: "|i⟩", position: [2.6, 0, 0] as const },
-    { text: "|-i⟩", position: [-2.6, 0, 0] as const },
-]
-
-const KEY_TO_GATE = {
-    h: "H",
-    s: "S",
-    t: "T",
-    x: "X",
-    y: "Y",
-    z: "Z",
-} as const
-
 const disposeMaterial = (
     material: THREE.Material | THREE.Material[],
     disposedMaterials?: Set<THREE.Material>,
@@ -247,7 +229,14 @@ export function useBlochScene({
         const zAxisLine = new THREE.Line(zAxisGeometry, zAxisMaterial)
         scene.add(zAxisLine)
 
-        labelSpritesRef.current = LABEL_CONFIGS.flatMap(({ text, position }) => {
+        labelSpritesRef.current = [
+            { text: "|0⟩", position: [0, 2.6, 0] as const },
+            { text: "|1⟩", position: [0, -2.6, 0] as const },
+            { text: "|+⟩", position: [0, 0, 2.6] as const },
+            { text: "|-⟩", position: [0, 0, -2.6] as const },
+            { text: "|i⟩", position: [2.6, 0, 0] as const },
+            { text: "|-i⟩", position: [-2.6, 0, 0] as const },
+        ].flatMap(({ text, position }) => {
             const texture = createLabelTexture(text, initialIsDarkModeRef.current)
             if (!texture) {
                 return []
@@ -472,15 +461,34 @@ export function useBlochScene({
                 }
             }
 
-
-
-            const gate = KEY_TO_GATE[key as keyof typeof KEY_TO_GATE]
-            if (!gate) {
-                return
+            switch (key) {
+                case "x":
+                    event.preventDefault()
+                    applyGate("X")
+                    return
+                case "y":
+                    event.preventDefault()
+                    applyGate("Y")
+                    return
+                case "z":
+                    event.preventDefault()
+                    applyGate("Z")
+                    return
+                case "h":
+                    event.preventDefault()
+                    applyGate("H")
+                    return
+                case "s":
+                    event.preventDefault()
+                    applyGate("S")
+                    return
+                case "t":
+                    event.preventDefault()
+                    applyGate("T")
+                    return
+                default:
+                    return
             }
-
-            event.preventDefault()
-            applyGate(gate)
         }
 
         window.addEventListener("keydown", onKeyDown)
