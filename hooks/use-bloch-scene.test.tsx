@@ -190,7 +190,10 @@ describe("useBlochScene", () => {
     const renderer = mockRendererInstances[0]
     const scene = renderer.render.mock.calls[0][0] as THREE.Scene
     const horizontalYValues = scene.children
-      .filter((child): child is THREE.Line => child instanceof THREE.Line)
+      .filter(
+        (child): child is THREE.Line =>
+          child instanceof THREE.Line && child.geometry.getAttribute("position").count > 2,
+      )
       .map((line) => {
         const positions = Array.from(line.geometry.getAttribute("position").array as Iterable<number>)
         const yValues = positions.filter((_, index) => index % 3 === 1)
