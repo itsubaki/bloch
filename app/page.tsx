@@ -10,8 +10,8 @@ import { useViewportOffset } from "@/hooks/use-viewport-offset"
 export default function Bloch() {
     const { quantumState, applyGate, resetState } = useBlochState()
     const { isDarkMode, toggleDarkMode } = useDarkMode()
-    const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode })
     const bottomOffset = useViewportOffset()
+    const { mountRef, resetCamera } = useBlochScene({ quantumState, isDarkMode, applyGate, resetState })
 
     const reset = () => {
         resetState()
