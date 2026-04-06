@@ -441,8 +441,6 @@ export function useBlochScene({
                 return
             }
 
-            const gate = KEY_TO_GATE[key as keyof typeof KEY_TO_GATE]
-
             if (cameraRef.current) {
                 switch (key) {
                     case "arrowleft":
@@ -474,6 +472,9 @@ export function useBlochScene({
                 }
             }
 
+
+
+            const gate = KEY_TO_GATE[key as keyof typeof KEY_TO_GATE]
             if (!gate) {
                 return
             }
