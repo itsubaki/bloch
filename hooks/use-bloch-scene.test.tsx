@@ -314,6 +314,35 @@ describe("useBlochScene", () => {
     expect(resetState).toHaveBeenCalledTimes(1)
   })
 
+  it("moves the camera with arrow keys without changing zoom", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
+    const initialPosition = camera.position.toArray()
+    const initialDistance = camera.position.length()
+
+    fireEvent.keyDown(window, { key: "ArrowLeft" })
+    expect(camera.position.toArray()).not.toEqual(initialPosition)
+    expect(camera.position.length()).toBeCloseTo(initialDistance, 4)
+
+    const positionAfterLeft = camera.position.toArray()
+    fireEvent.keyDown(window, { key: "ArrowUp" })
+    expect(camera.position.toArray()).not.toEqual(positionAfterLeft)
+    expect(camera.position.length()).toBeCloseTo(initialDistance, 4)
+
+    const positionBeforeIgnoredMove = camera.position.toArray()
+    fireEvent.keyDown(window, { ctrlKey: true, key: "ArrowRight" })
+    expect(camera.position.toArray()).toEqual(positionBeforeIgnoredMove)
+
+    const input = document.createElement("input")
+    document.body.appendChild(input)
+    fireEvent.keyDown(input, { key: "ArrowDown" })
+    expect(camera.position.toArray()).toEqual(positionBeforeIgnoredMove)
+    input.remove()
+  })
+
   it("initializes the scene in light mode", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     render(<TestComponent isDarkMode={false} quantumState={quantumState} />)

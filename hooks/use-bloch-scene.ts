@@ -77,6 +77,27 @@ const resetCameraPosition = (camera: THREE.PerspectiveCamera) => {
     camera.lookAt(0, 0, 0)
 }
 
+const rotateCamera = (camera: THREE.PerspectiveCamera, deltaTheta: number, deltaPhi: number) => {
+    const sphericalCoords = new THREE.Spherical()
+    sphericalCoords.setFromVector3(camera.position)
+
+    sphericalCoords.theta += deltaTheta
+    sphericalCoords.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalCoords.phi + deltaPhi))
+
+    camera.position.setFromSpherical(sphericalCoords)
+    camera.lookAt(0, 0, 0)
+}
+
+const zoomCamera = (camera: THREE.PerspectiveCamera, deltaRadius: number) => {
+    const sphericalCoords = new THREE.Spherical()
+    sphericalCoords.setFromVector3(camera.position)
+
+    sphericalCoords.radius = Math.max(2, Math.min(10, sphericalCoords.radius + deltaRadius))
+
+    camera.position.setFromSpherical(sphericalCoords)
+    camera.lookAt(0, 0, 0)
+}
+
 const getVectorLength = (x: number, y: number, z: number) => Math.sqrt(x * x + y * y + z * z) * 2
 
 const isEditableTarget = (target: EventTarget | null) =>
@@ -264,14 +285,7 @@ export function useBlochScene({
             const deltaX = event.clientX - mouseX
             const deltaY = event.clientY - mouseY
 
-            const sphericalCoords = new THREE.Spherical()
-            sphericalCoords.setFromVector3(camera.position)
-
-            sphericalCoords.theta -= deltaX * 0.01
-            sphericalCoords.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalCoords.phi + deltaY * 0.01))
-
-            camera.position.setFromSpherical(sphericalCoords)
-            camera.lookAt(0, 0, 0)
+            rotateCamera(camera, -deltaX * 0.01, deltaY * 0.01)
 
             mouseX = event.clientX
             mouseY = event.clientY
@@ -279,14 +293,7 @@ export function useBlochScene({
 
         const onWheel = (event: WheelEvent) => {
             event.preventDefault()
-
-            const sphericalCoords = new THREE.Spherical()
-            sphericalCoords.setFromVector3(camera.position)
-
-            sphericalCoords.radius = Math.max(2, Math.min(10, sphericalCoords.radius + event.deltaY * 0.01))
-
-            camera.position.setFromSpherical(sphericalCoords)
-            camera.lookAt(0, 0, 0)
+            zoomCamera(camera, event.deltaY * 0.01)
         }
 
         const onTouchStart = (event: TouchEvent) => {
@@ -313,14 +320,7 @@ export function useBlochScene({
                 const deltaX = touches[0].clientX - mouseX
                 const deltaY = touches[0].clientY - mouseY
 
-                const sphericalCoords = new THREE.Spherical()
-                sphericalCoords.setFromVector3(camera.position)
-
-                sphericalCoords.theta -= deltaX * 0.01
-                sphericalCoords.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalCoords.phi + deltaY * 0.01))
-
-                camera.position.setFromSpherical(sphericalCoords)
-                camera.lookAt(0, 0, 0)
+                rotateCamera(camera, -deltaX * 0.01, deltaY * 0.01)
 
                 mouseX = touches[0].clientX
                 mouseY = touches[0].clientY
@@ -331,13 +331,7 @@ export function useBlochScene({
 
                 if (lastPinchDistance > 0) {
                     const scale = distance / lastPinchDistance
-
-                    const sphericalCoords = new THREE.Spherical()
-                    sphericalCoords.setFromVector3(camera.position)
-                    sphericalCoords.radius = Math.max(2, Math.min(10, sphericalCoords.radius / scale))
-
-                    camera.position.setFromSpherical(sphericalCoords)
-                    camera.lookAt(0, 0, 0)
+                    zoomCamera(camera, camera.position.length() / scale - camera.position.length())
                 }
 
                 lastPinchDistance = distance
@@ -448,6 +442,29 @@ export function useBlochScene({
             }
 
             const gate = KEY_TO_GATE[key as keyof typeof KEY_TO_GATE]
+
+            if (cameraRef.current) {
+                switch (key) {
+                    case "arrowleft":
+                        event.preventDefault()
+                        rotateCamera(cameraRef.current, 0.12, 0)
+                        return
+                    case "arrowright":
+                        event.preventDefault()
+                        rotateCamera(cameraRef.current, -0.12, 0)
+                        return
+                    case "arrowup":
+                        event.preventDefault()
+                        rotateCamera(cameraRef.current, 0, -0.12)
+                        return
+                    case "arrowdown":
+                        event.preventDefault()
+                        rotateCamera(cameraRef.current, 0, 0.12)
+                        return
+                    default:
+                        break
+                }
+            }
 
             if (!gate) {
                 return
