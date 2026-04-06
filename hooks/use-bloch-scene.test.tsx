@@ -338,6 +338,42 @@ describe("useBlochScene", () => {
     expect(resetState).toHaveBeenCalledTimes(1)
   })
 
+  it("ignores keyboard shortcuts from editable elements", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    const applyGate = vi.fn()
+    const resetState = vi.fn()
+    render(
+      <TestComponent
+        applyGate={applyGate}
+        isDarkMode
+        quantumState={quantumState}
+        resetState={resetState}
+      />,
+    )
+
+    const renderer = mockRendererInstances[0]
+    const camera = renderer.render.mock.calls[0][1] as THREE.PerspectiveCamera
+    const positionBefore = camera.position.toArray()
+
+    const select = document.createElement("select")
+    const textarea = document.createElement("textarea")
+    const editableDiv = document.createElement("div")
+    editableDiv.contentEditable = "true"
+    document.body.append(select, textarea, editableDiv)
+
+    fireEvent.keyDown(select, { key: "x" })
+    fireEvent.keyDown(textarea, { key: "r" })
+    fireEvent.keyDown(editableDiv, { key: "ArrowLeft" })
+
+    expect(applyGate).not.toHaveBeenCalled()
+    expect(resetState).not.toHaveBeenCalled()
+    expect(camera.position.toArray()).toEqual(positionBefore)
+
+    select.remove()
+    textarea.remove()
+    editableDiv.remove()
+  })
+
   it("moves the camera with arrow keys without changing zoom", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
     render(<TestComponent isDarkMode quantumState={quantumState} />)
@@ -509,6 +545,28 @@ describe("useBlochScene", () => {
     expect(labelSprites).toHaveLength(6)
   })
 
+  it("handles reset and camera shortcuts safely when no camera was mounted", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+    const applyGate = vi.fn()
+    const resetState = vi.fn()
+
+    render(
+      <DetachedTestComponent
+        applyGate={applyGate}
+        isDarkMode
+        quantumState={quantumState}
+        resetState={resetState}
+      />,
+    )
+
+    fireEvent.keyDown(window, { key: "r" })
+    fireEvent.keyDown(window, { key: "ArrowLeft" })
+    fireEvent.keyDown(window, { key: "x" })
+
+    expect(resetState).toHaveBeenCalledTimes(1)
+    expect(applyGate).toHaveBeenCalledWith("X")
+  })
+
   it("skips label sprite creation when canvas text rendering is unavailable", () => {
     const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
 
@@ -591,5 +649,31 @@ describe("useBlochScene", () => {
     expect(cancelAnimationFrame).toHaveBeenCalledWith(99)
     disposeSpies.forEach((disposeSpy) => expect(disposeSpy).toHaveBeenCalledOnce())
     expect(() => resizeHandler(new Event("resize"))).not.toThrow()
+  })
+
+  it("skips cleanup work when no animation frame or removable canvas is available", () => {
+    const quantumState = new QuantumState(new Complex(1, 0), new Complex(0, 0))
+
+    vi.stubGlobal("requestAnimationFrame", vi.fn(() => null as unknown as number))
+    const { getByTestId, unmount } = render(<TestComponent isDarkMode quantumState={quantumState} />)
+
+    const renderer = mockRendererInstances[0]
+    const mount = getByTestId("mount")
+    const domElement = renderer.domElement
+    let domElementAccessCount = 0
+
+    Object.defineProperty(renderer, "domElement", {
+      configurable: true,
+      get: () => {
+        domElementAccessCount += 1
+        return domElementAccessCount <= 7
+          ? domElement
+          : undefined as unknown as HTMLCanvasElement
+      },
+    })
+
+    expect(() => unmount()).not.toThrow()
+    expect(cancelAnimationFrame).not.toHaveBeenCalled()
+    expect(mount).toContainElement(domElement)
   })
 })
