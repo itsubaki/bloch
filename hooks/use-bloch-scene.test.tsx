@@ -359,6 +359,10 @@ describe("useBlochScene", () => {
     const textarea = document.createElement("textarea")
     const editableDiv = document.createElement("div")
     editableDiv.contentEditable = "true"
+    Object.defineProperty(editableDiv, "isContentEditable", {
+      configurable: true,
+      value: true,
+    })
     document.body.append(select, textarea, editableDiv)
 
     fireEvent.keyDown(select, { key: "x" })
