@@ -442,11 +442,11 @@ export function useBlochScene({
                         return
                     case "arrowup":
                         event.preventDefault()
-                        rotateCamera(cameraRef.current, 0, -0.12)
+                        rotateCamera(cameraRef.current, 0, 0.12)
                         return
                     case "arrowdown":
                         event.preventDefault()
-                        rotateCamera(cameraRef.current, 0, 0.12)
+                        rotateCamera(cameraRef.current, 0, -0.12)
                         return
                     case "+":
                         event.preventDefault()
