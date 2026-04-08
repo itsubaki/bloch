@@ -9,8 +9,8 @@ install:
 
 update:
 	pnpm update --latest
-	pnpm audit
 	pnpm add -D eslint@9.39.4
+	pnpm audit
 
 build:
 	pnpm run build
