@@ -23,10 +23,10 @@ export default function RootLayout({
         <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
             <body className={GeistSans.className}>
                 {children}
-            </body>
 
-            <Analytics />
-            {process.env.NEXT_PUBLIC_GA_ID && (<GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />)}
+                <Analytics />
+                {process.env.NEXT_PUBLIC_GA_ID && (<GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />)}
+            </body>
         </html>
     )
 }
