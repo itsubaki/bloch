@@ -64,7 +64,7 @@ const rotateCamera = (camera: THREE.PerspectiveCamera, deltaTheta: number, delta
     sphericalCoords.setFromVector3(camera.position)
 
     sphericalCoords.theta += deltaTheta
-    sphericalCoords.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalCoords.phi + deltaPhi))
+    sphericalCoords.phi = Math.max(0.1, Math.min(Math.PI - 0.1, sphericalCoords.phi - deltaPhi))
 
     camera.position.setFromSpherical(sphericalCoords)
     camera.lookAt(0, 0, 0)
@@ -442,11 +442,11 @@ export function useBlochScene({
                         return
                     case "arrowup":
                         event.preventDefault()
-                        rotateCamera(cameraRef.current, 0, 0.12)
+                        rotateCamera(cameraRef.current, 0, -0.12)
                         return
                     case "arrowdown":
                         event.preventDefault()
-                        rotateCamera(cameraRef.current, 0, -0.12)
+                        rotateCamera(cameraRef.current, 0, 0.12)
                         return
                     case "+":
                         event.preventDefault()
