@@ -48,7 +48,7 @@
         "embla-carousel-react": "latest",
         "geist": "latest",
         "input-otp": "latest",
-        "lucide-react": "^1.8.0",
+        "lucide-react": "^1.11.0",
         "next": "16.2.4",
         "next-themes": "latest",
         "react": "^19.2.5",
@@ -81,7 +81,7 @@
         "postcss": "^8.5.10",
         "tailwindcss": "^4.2.4",
         "typescript": "^6.0.3",
-        "vite": "^8.0.9",
+        "vite": "^8.0.10",
         "vitest": "^4.1.5"
     }
 }
