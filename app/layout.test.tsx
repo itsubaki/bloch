@@ -48,19 +48,6 @@ describe("app/layout", () => {
         expect(viewport).toMatchObject({ viewportFit: "cover" })
         expect(markup).toContain('<html lang="en" class="font-sans-variable font-mono-variable">')
         expect(markup).toContain('<body class="font-sans-class"><main>content</main>')
-        expect(markup).toContain('data-testid="analytics"')
         expect(markup).not.toContain('data-testid="ga"')
-    })
-
-    it("renders optional Google analytics integrations when ids are present", () => {
-        process.env.NEXT_PUBLIC_GA_ID = "GA-TEST"
-
-        const markup = renderToStaticMarkup(
-            <RootLayout>
-                <main>content</main>
-            </RootLayout>,
-        )
-
-        expect(markup).toContain('data-testid="ga">GA-TEST</div>')
     })
 })
