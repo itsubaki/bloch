@@ -41,8 +41,12 @@ export default function RootLayout({
             <body className={GeistSans.className}>
                 {children}
 
-                <Analytics />
-                {process.env.NEXT_PUBLIC_GA_ID && (<GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />)}
+                {process.env.NODE_ENV === 'production' && (
+                    <>
+                        <Analytics />
+                        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />}
+                    </>
+                )}
             </body>
         </html>
     )
