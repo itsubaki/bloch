@@ -19,19 +19,7 @@ vi.mock("@vercel/analytics/next", () => ({
     Analytics: () => <div data-testid="analytics" />,
 }))
 
-vi.mock("@next/third-parties/google", () => ({
-    GoogleAnalytics: ({ gaId }: { gaId: string }) => <div data-testid="ga">{gaId}</div>,
-}))
-
 describe("app/layout", () => {
-    const originalEnv = {
-        NEXT_PUBLIC_GA_ID: process.env.NEXT_PUBLIC_GA_ID,
-    }
-
-    afterEach(() => {
-        process.env.NEXT_PUBLIC_GA_ID = originalEnv.NEXT_PUBLIC_GA_ID
-    })
-
     it("exports metadata and renders the base layout without optional analytics tags", () => {
         delete process.env.NEXT_PUBLIC_GA_ID
 
