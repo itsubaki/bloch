@@ -1,5 +1,5 @@
 import { renderToStaticMarkup } from "react-dom/server"
-import { afterEach, describe, expect, it, vi } from "vitest"
+import { describe, expect, it, vi } from "vitest"
 import RootLayout, { metadata, viewport } from "@/app/layout"
 
 vi.mock("geist/font/sans", () => ({
@@ -13,10 +13,6 @@ vi.mock("geist/font/mono", () => ({
     GeistMono: {
         variable: "font-mono-variable",
     },
-}))
-
-vi.mock("@vercel/analytics/next", () => ({
-    Analytics: () => <div data-testid="analytics" />,
 }))
 
 describe("app/layout", () => {

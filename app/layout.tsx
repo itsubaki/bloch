@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import { GeistMono } from 'geist/font/mono'
-import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
@@ -41,12 +40,6 @@ export default function RootLayout({
         <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
             <body className={GeistSans.className}>
                 {children}
-
-                {process.env.NODE_ENV === 'production' && (
-                    <>
-                        <Analytics />
-                    </>
-                )}
             </body>
         </html>
     )
